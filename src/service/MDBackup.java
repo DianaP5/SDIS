@@ -2,6 +2,7 @@ package service;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.DatagramPacket;
 import java.net.ServerSocket;
 import java.net.Socket;
 
@@ -16,12 +17,12 @@ public class MDBackup implements Runnable {
 	private int attempts=5;
 	
 	public MDBackup(Message msg) throws IOException{
-    	//PUTCHUNK <Version> <SenderId> <FileId> <ChunkNo> <ReplicationDeg> <CRLF><CRLF><Body>
+    /*	//PUTCHUNK <Version> <SenderId> <FileId> <ChunkNo> <ReplicationDeg> <CRLF><CRLF><Body>
     	int version=Integer.parseInt(msg.getParameter(1));
     	String senderId=msg.getParameter(2);
     	String fileId=msg.getParameter(3);
     	int chunkNo=Integer.parseInt(msg.getParameter(4));
-    	int replicationDegree=Integer.parseInt(msg.getParameter(4));
+    	int replicationDegree=Integer.parseInt(msg.getParameter(4));*/
     	byte[] body=msg.getBody();
     	this.msg=msg;
     	
@@ -33,17 +34,22 @@ public class MDBackup implements Runnable {
     		clientSocket = serverSocket.accept();
     		new Thread(this).start();
     		
-    		if (checkResponse() || attempts <= 0)
+    		if (checkResponse() || attempts <= 0){
     			done=true;
-    		else attempts--;
+    			serverSocket.close();
+    		}else attempts--;
     	}
     	
 	}
 
-	private boolean checkResponse() {
-		MessageControl mc1=new MessageControl();
+	private boolean checkResponse() throws IOException {
+		MessageControl mc1=new MessageControl(msg);
+		DatagramPacket dg1=mc1.receive();
+		String msgType=new Message(dg1).getParameter(0);
 		
-		return false;
+		if (msgType.toUpperCase() == "STORED")
+			return true;
+		else return false;
 	}
 
 	@Override

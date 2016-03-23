@@ -13,9 +13,17 @@ public class Message {
 	private byte[] body;
 	
 	public Message(DatagramPacket packet) {
-		this.packet = packet;
-		header = null;
+		this.setPacket(packet);
+		setHeader(null);
 		setBody(null);
+	}
+	
+	public void setHeader(String header) {
+		this.header=header;
+	}
+	
+	public String getHeader() {
+		return header;
 	}
 
 	public byte[] getBody() {
@@ -32,5 +40,13 @@ public class Message {
 		if (index < splitedHeader.length)
 			return splitedHeader[index];
 		else return splitedHeader[splitedHeader.length-1];
+	}
+
+	public DatagramPacket getPacket() {
+		return packet;
+	}
+
+	public void setPacket(DatagramPacket packet) {
+		this.packet = packet;
 	}
 }
