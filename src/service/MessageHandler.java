@@ -36,7 +36,7 @@ public class MessageHandler {
     
     private void storedChunkHandler(Message msg) throws IOException {
 		MessageControl mc1=new MessageControl(msg);
-		mc1.send();
+		new Thread(mc1).start();
 	}
 
 	private void putChunkHandler(Message msg) throws IOException {

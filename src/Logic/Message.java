@@ -9,6 +9,7 @@ public class Message {
 	public static final String CRLF = CR + LF;
 	
 	private DatagramPacket packet;
+	
 	public String header;
 	private byte[] body;
 	

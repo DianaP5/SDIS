@@ -1,71 +1,91 @@
 package service;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.net.DatagramPacket;
-import java.net.ServerSocket;
-import java.net.Socket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
 
+import listeners.MessageControlListener;
 import logic.Message;
 
 public class MDBackup implements Runnable {
 	
-	final static int PORT=4444;
-	private static Socket clientSocket;
-	Message msg;
-	Boolean done=false;
-	private int attempts=5;
+	private final static String INET_ADDRESS = "224.0.0.4";
+    private final static int PORT = 8887;
+    byte[] buf = new byte[256];
+    
+    private DatagramSocket socket;
+    private DatagramPacket msgPacket;
+    private InetAddress ipAddress;
+    private Message msg;
+    private MessageControlListener listener;
+    
+	public Boolean done=false;
+	private int attempts=10;
 	
-	public MDBackup(Message msg) throws IOException{
+
     /*	//PUTCHUNK <Version> <SenderId> <FileId> <ChunkNo> <ReplicationDeg> <CRLF><CRLF><Body>
     	int version=Integer.parseInt(msg.getParameter(1));
     	String senderId=msg.getParameter(2);
     	String fileId=msg.getParameter(3);
     	int chunkNo=Integer.parseInt(msg.getParameter(4));
     	int replicationDegree=Integer.parseInt(msg.getParameter(4));*/
-    	byte[] body=msg.getBody();
+	
+	public MDBackup(Message msg) throws IOException{
+    	ipAddress = InetAddress.getByName(INET_ADDRESS);		
+    	socket = new DatagramSocket();
     	this.msg=msg;
-    	
-    	// creates socket
-    	ServerSocket serverSocket = new ServerSocket(PORT);
-    	
-    	while (!done) {
-    		serverSocket.setReceiveBufferSize(body.length);
-    		clientSocket = serverSocket.accept();
-    		new Thread(this).start();
-    		
-    		if (checkResponse() || attempts <= 0){
-    			done=true;
-    			serverSocket.close();
-    		}else attempts--;
-    	}
-    	
 	}
 
-	private boolean checkResponse() throws IOException {
-		MessageControl mc1=new MessageControl(msg);
-		DatagramPacket dg1=mc1.receive();
-		String msgType=new Message(dg1).getParameter(0);
+	private boolean checkResponse() throws IOException, InterruptedException {
+
+		Thread.sleep(1000);
+
+		if (!listener.getReceived())
+    		return false;
+    	
+    	String message = new String(listener.buf, 0, listener.buf.length);
 		
-		if (msgType.toUpperCase() == "STORED")
+    	Message m1=new Message(null);
+    	m1.setHeader(message);
+    	
+    	message=m1.getParameter(0);
+    	
+		if (message.toUpperCase().equals("STORED")){
 			return true;
-		else return false;
-	}
+		}else return false;
+    }
 
-	@Override
-	public void run() {
+	 @Override
+		public void run() {
+	    	String header=msg.getHeader();
+	    	String body=msg.getBody().toString();
+	    	byte[] message=(header+body).getBytes();
+	    	
+			msgPacket = new DatagramPacket(message,message.length, ipAddress, PORT);
+	    	
+	  		try {
+	  			
+	  			listener=new MessageControlListener();
 
-		try {
-			clientSocket =new Socket();
-			
-			PrintWriter streamOut = new PrintWriter(clientSocket.getOutputStream(),true);
-			
-			streamOut.println(msg);
-			
-			clientSocket.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		
-	}
+		    	Thread t1=new Thread(listener);
+		    	t1.start();
+		    	
+		    	while (!done) {
+		    		socket.send(msgPacket);
+					
+					System.out.println("Server sent MDB UDP: " + msg.header + msg.getBody());
+
+					Thread.sleep(1000);
+					
+		    		if (checkResponse() || attempts <= 0){
+		    			done=true;
+		    		}else attempts--;
+		    	}
+		    	
+			} catch (IOException | InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}   
 }

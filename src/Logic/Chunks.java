@@ -1,4 +1,4 @@
-package Logic;
+package logic;
 
 public class Chunks {
 	private static int id;
@@ -32,8 +32,4 @@ public class Chunks {
     public int getReplicationDeg(){
     	return ReplicationDeg;
     }
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> origin/master
