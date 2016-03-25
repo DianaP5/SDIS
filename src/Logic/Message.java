@@ -13,10 +13,13 @@ public class Message {
 	public String header;
 	private byte[] body;
 	
-	public Message(DatagramPacket packet) {
-		this.setPacket(packet);
-		setHeader(null);
-		setBody(null);
+	public Message(String header, byte[] body) {
+		setHeader(header+CRLF+CRLF);
+		setBody(body);
+	}
+	
+	public byte[] getMessage(){
+		return (header+body.toString()).getBytes();
 	}
 	
 	public void setHeader(String header) {

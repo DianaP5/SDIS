@@ -20,7 +20,7 @@ public class testing1 {
 			
 			while(true){
 				//if (l1.getMsgPacket() != null)
-					Message m1=new Message(l1.getMsgPacket());
+					//Message m1=new Message(l1.getMsgPacket());
 				
 				//MessageHandler h1=new MessageHandler(m1);
 			}

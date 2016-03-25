@@ -1,35 +1,29 @@
 package logic;
 
 public class Chunks {
-	private static int id;
-	private static int number;
-	private final int maxLenght=64;
-	private static int size;
-	
-	private int ReplicationDeg;
-	
-	
-    private byte[] chunkNo;
+	private String fileId;
+	private int number;
+	private byte[] content;
 
-    public Chunks(int id, byte[] chunkNo) {
-        this.id = id;
-        this.chunkNo = chunkNo;
+    public Chunks(String fileId,int number,byte[] content) {
+        this.fileId = fileId;
+        this.setNumber(number);
+        this.setContent(content);
     }
 
-    public int getId(){
-        return id;
-    }
+	public int getNumber() {
+		return number;
+	}
 
-    public int getChunkSize() {
-        return chunkNo.length;
-    }
+	public void setNumber(int number) {
+		this.number = number;
+	}
 
-    public byte[] getChunkNo() {
-        return chunkNo;
-    }
-    
-    
-    public int getReplicationDeg(){
-    	return ReplicationDeg;
-    }
+	public byte[] getContent() {
+		return content;
+	}
+
+	public void setContent(byte[] content) {
+		this.content = content;
+	}
 }

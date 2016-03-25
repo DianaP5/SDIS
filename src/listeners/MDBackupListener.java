@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
+import java.util.Random;
 
 import service.MessageControl;
 import logic.Message;
@@ -38,7 +39,7 @@ public class MDBackupListener implements Runnable {
 			        
 			        sendRespond(message);
 		        }
-			} catch (IOException e) {
+			} catch (IOException | InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
@@ -46,22 +47,25 @@ public class MDBackupListener implements Runnable {
 
 		}
 
-		private void sendRespond(String msg) throws IOException {
+		private void sendRespond(String msg) throws IOException, InterruptedException {
 			//check if has space
 			//check degree
 			//store
-			Message m1=new Message(null);
-			m1.setHeader(msg);
+			String[] splitedMsg=msg.split(" ");
 			
-			//String msgType=m1.getParameter(0);
-			String version=m1.getParameter(1);
-	    	String senderId=m1.getParameter(2);
-	    	String fileId=m1.getParameter(3);
-	    	String chunkNo=m1.getParameter(4);
-	    	//String replicationDegree=m1.getParameter(5);
+			String version=splitedMsg[1];
+	    	String senderId=splitedMsg[2];
+	    	String fileId=splitedMsg[3];
+	    	String chunkNo=splitedMsg[4];
 	    	
 	    	String header="STORED"+" "+version+" "+senderId+" "+fileId+" "+chunkNo+" "+Message.CRLF+Message.CRLF;
-	    	m1.setHeader(header);
+	    	Message m1=new Message(header,null);
+	    	
+	    	Random r1=new Random();
+	    	
+	    	int delay = r1.nextInt((400 - 0) + 1) + 0;
+	    	
+	    	Thread.sleep(delay);
 	    	
 			MessageControl mc1=new MessageControl(m1);
 			

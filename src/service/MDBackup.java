@@ -46,10 +46,7 @@ public class MDBackup implements Runnable {
     	
     	String message = new String(listener.buf, 0, listener.buf.length);
 		
-    	Message m1=new Message(null);
-    	m1.setHeader(message);
-    	
-    	message=m1.getParameter(0);
+    	message=message.split(" ")[0];
     	
 		if (message.toUpperCase().equals("STORED")){
 			return true;
