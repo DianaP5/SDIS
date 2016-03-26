@@ -26,19 +26,19 @@ public class MessageControl implements Runnable{
 	
     @Override
 	public void run() {
-    	byte[] body=msg.getHeader().getBytes();
+    	byte[] message=msg.getHeader().getBytes();
     	
-		msgPacket = new DatagramPacket(body,body.length, ipAddress, PORT);
+		msgPacket = new DatagramPacket(message,message.length, ipAddress, PORT);
     	
   		try {
 			socket.send(msgPacket);
 			
-			String msgG = new String(body, 0, body.length);
+			String s1 = new String(message, 0, message.length);
 			
-			System.out.println("Server sent MC UDP: " + msgG);
+			System.out.println("Server sent MC: " + s1);
 	        
-			Thread.sleep(1000);
-		} catch (IOException | InterruptedException e) {
+			//Thread.sleep(1000);
+		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}

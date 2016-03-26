@@ -40,7 +40,7 @@ public class MessageHandler {
 	}
 
 	private void putChunkHandler(Message msg) throws IOException {
-    	MDBackup b1=new MDBackup(msg);
+    	MDBackup b1=new MDBackup(msg,1);
     	new Thread(b1).start();
 	}
 

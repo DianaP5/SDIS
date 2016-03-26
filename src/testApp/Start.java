@@ -12,21 +12,20 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
 
 import logic.Chunks;
 import logic.FileSys;
 import logic.Message;
 import service.MDBackup;
-import service.MessageHandler;
 import util.HashFile;
 
 public class Start {
 	
 	private static String peerId="1"; //<IP address>:<port number>
 	private static String msgType="PUTCHUNK";
-	private static String op1="C:\\Users\\Ricardo\\Desktop\\7tcp.pdf";
-	private static String op2="3";
+	private static String version="1.0";
+	private static String op1="C:\\Users\\Ricardo\\Desktop\\cars.txt";
+	private static String op2="1";
 	//private static ArrayList<FileSys> filesList;
 	
 	public static void main(String[] args) throws IOException, NoSuchAlgorithmException, InterruptedException{
@@ -64,30 +63,111 @@ public class Start {
 	
 	 public static void splitFile(FileSys file) throws IOException {
 	        int counter = 0;
-	        int eachFileSize = 1024 * 64; //64Kb
+	        int eachFileSize = 10; //1024 * 64; //64Kb
+	       
 	        
-	        byte[] buffer = new byte[eachFileSize];
 
 	        try (BufferedInputStream bis = new BufferedInputStream(
 	                new FileInputStream(op1))) {
-	            //String name = "cena";
-	            
-	            int tmp = 0;
+
+	        	int tmp = 0;
 	            File f1=new File(op1);
+	            long actualFileSize=f1.length();
+	            int nChunks=0;
+	            
+	            if (actualFileSize < eachFileSize)
+	            	eachFileSize=(int) actualFileSize;
+	            else{ 
+	            	double times= actualFileSize % eachFileSize;
+	            	nChunks=(int) Math.floor(times);
+	            }
+	            
+	            byte[] buffer = new byte[eachFileSize];
 	            
 	            while ((tmp = bis.read(buffer)) > 0) {
-	               // File newFile = new File(f1.getParent(), name + "."+counter+".txt");
-	               
-	                Chunks c1=new Chunks(file.getId(),counter,buffer);
+	            	//File newFile = new File(f1.getParent(), "new" + "."+counter+".txt");
+	            	String s1=new String(buffer,0,buffer.length);
+	            	
+	            	if (nChunks > 0 && (counter + 1 >= nChunks)){ 
+		            		int lastChunkSize=(int) (actualFileSize-((nChunks-1)*eachFileSize));
+		            		s1=new String(buffer,0,lastChunkSize);
+		            }
+	            	
+	                Chunks c1=new Chunks(file.getId(),counter,s1);
 	                file.addChunk(c1);
 	                counter++;
-	                System.out.println(buffer);
-	                /*try (FileOutputStream out = new FileOutputStream(newFile)) {
-	                    out.write(buffer, 0, tmp);//tmp is chunk size
+	                System.out.println("File part "+counter+": "+s1);
+	               /* try (FileOutputStream out = new FileOutputStream(newFile)) {
+	                    out.write(s1.getBytes(), 0,10);//tmp is chunk size
 	                }*/
 	            }
 	        }
 	    }
+
+	public static void handler(String msgType) throws IOException, NoSuchAlgorithmException, InterruptedException {
+
+		switch (msgType) {
+            case "PUTCHUNK":
+            	FileSys f1=createFile();
+            	splitFile(f1);
+                
+        		int numberChunks=f1.getChunksList().size();
+        		int i=0;
+        		
+        		while(i < numberChunks){
+        			//PUTCHUNK <Version> <SenderId> <FileId> <ChunkNo> <ReplicationDeg> <CRLF><CRLF><Body>
+        			Chunks c1=f1.getChunksList().get(i);
+        			String header=msgType+" "+version+" "+peerId+" "+f1.getId()+" "+c1.getNumber()+" "+op2+" ";
+        			Message m1=new Message(header,c1.getContent());
+        			
+        			MDBackup b1=new MDBackup(m1,Integer.parseInt(op2));
+        			System.out.println("Nova thread chunk "+ c1.getNumber()+" "+ c1.getContent().toString());
+                	new Thread(b1).start();
+                	Thread.sleep(1000);
+                	
+                	i++;
+        		}
+            	
+            	//putChunkHandler(msg);
+                break;
+            case "GETCHUNK":
+                System.out.println("1");
+                break; 
+            case "STORED":
+               // storedChunkHandler(" !");
+                break;
+            case "CHUNK":
+                System.out.println("1");
+                break;
+            case "DELETE":
+                System.out.println("1");
+                break;
+            case "REMOVED":
+                System.out.println("1");
+                break;
+            default:
+            	System.out.println("Error: Wrong MessageType argument: "+msgType);
+                break;
+        }
+    }
+
+	private static FileSys createFile() throws IOException, NoSuchAlgorithmException {
+		
+		Path filePath = Paths.get(op1);
+		//long f=new File(op1).lastModified();
+		//System.out.println(f);
+		
+		String fileName=filePath.getFileName().toString();
+		String fileCreationTime = Files.readAttributes(filePath, BasicFileAttributes.class).creationTime().toString();
+		
+		HashFile h1=new HashFile(fileName+" "+op1+" "+fileCreationTime);
+		String hash=h1.getHash().toString();
+		
+		FileSys f1=new FileSys(Integer.parseInt(peerId),hash,Integer.parseInt(op2));
+		
+		return f1;
+	}
+	
 
 	public static void copyFile(String source,String destination) throws IOException{
 		
@@ -119,66 +199,5 @@ public class Start {
 		}
 	}
 	
-	public static void handler(String msgType) throws IOException, NoSuchAlgorithmException, InterruptedException {
-
-		switch (msgType) {
-            case "PUTCHUNK":
-            	FileSys f1=createFile();
-            	splitFile(f1);
-            	
-            	MessageHandler h1=new MessageHandler(null);
-        		int numberChunks=f1.getChunksList().size();
-        		
-        		while(numberChunks > 0){
-        			//PUTCHUNK <Version> <SenderId> <FileId> <ChunkNo> <ReplicationDeg> <CRLF><CRLF><Body>
-        			Chunks c1=f1.getChunksList().get(numberChunks-1);
-        			String header=msgType+" "+"1.0"+" "+peerId+" "+f1.getId()+" "+c1.getNumber()+" "+op2+" ";
-        			Message m1=new Message(header,c1.getContent());
-        			
-        			MDBackup b1=new MDBackup(m1);
-                	new Thread(b1).start();
-                	Thread.sleep(1000);
-                	
-                	numberChunks--;
-        		}
-            	
-            	
-            	//putChunkHandler(msg);
-                break;
-            case "GETCHUNK":
-                System.out.println("1");
-                break; 
-            case "STORED":
-               // storedChunkHandler(" !");
-                break;
-            case "CHUNK":
-                System.out.println("1");
-                break;
-            case "DELETE":
-                System.out.println("1");
-                break;
-            case "REMOVED":
-                System.out.println("1");
-                break;
-            default:
-            	System.out.println("Error: Wrong MessageType argument: "+msgType);
-                break;
-        }
-    }
-
-	private static FileSys createFile() throws IOException, NoSuchAlgorithmException {
-		
-		Path filePath = Paths.get(op1);
-		
-		String fileName=filePath.getFileName().toString();
-		String fileCreationTime = Files.readAttributes(filePath, BasicFileAttributes.class).creationTime().toString();
-		
-		HashFile h1=new HashFile(fileName+" "+op1+" "+fileCreationTime);
-		String hash=h1.getHash().toString();
-		
-		FileSys f1=new FileSys(Integer.parseInt(peerId),hash,Integer.parseInt(op2));
-		
-		return f1;
-	}
 	
 }

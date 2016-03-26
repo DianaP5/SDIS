@@ -5,6 +5,7 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 
+import util.SplitParameters;
 import listeners.MessageControlListener;
 import logic.Message;
 
@@ -17,11 +18,14 @@ public class MDBackup implements Runnable {
     private DatagramSocket socket;
     private DatagramPacket msgPacket;
     private InetAddress ipAddress;
-    private Message msg;
     private MessageControlListener listener;
     
+    private Message msg;
+    
 	public Boolean done=false;
-	private int attempts=10;
+	private int attempts=5;
+	private int repDeg;
+	private int replicated;
 	
 
     /*	//PUTCHUNK <Version> <SenderId> <FileId> <ChunkNo> <ReplicationDeg> <CRLF><CRLF><Body>
@@ -31,33 +35,47 @@ public class MDBackup implements Runnable {
     	int chunkNo=Integer.parseInt(msg.getParameter(4));
     	int replicationDegree=Integer.parseInt(msg.getParameter(4));*/
 	
-	public MDBackup(Message msg) throws IOException{
+	public MDBackup(Message msg, int op2) throws IOException{
     	ipAddress = InetAddress.getByName(INET_ADDRESS);		
     	socket = new DatagramSocket();
     	this.msg=msg;
+    	this.repDeg=op2;
 	}
 
 	private boolean checkResponse() throws IOException, InterruptedException {
-
-		Thread.sleep(1000);
 
 		if (!listener.getReceived())
     		return false;
     	
     	String message = new String(listener.buf, 0, listener.buf.length);
 		
-    	message=message.split(" ")[0];
+    	String msgType=message.split(" ")[0];
+    	String version=message.split(" ")[1];
+    	String senderId=message.split(" ")[2];
+    	String fileId=message.split(" ")[3];
+    	String chunkNumber=message.split(" ")[4];
     	
-		if (message.toUpperCase().equals("STORED")){
-			return true;
+
+    	String version1=msg.getHeader().split(" ")[1];
+    	String senderId1=msg.getHeader().split(" ")[2];
+    	String fileId1=msg.getHeader().split(" ")[3];
+    	String chunkNumber1=msg.getHeader().split(" ")[4];
+    	
+    	
+    	//STORED <Version> <SenderId> <FileId> <ChunkNo> <CRLF><CRLF>
+		if (msgType.toUpperCase().equals("STORED") && version.equals(version1)&& senderId.equals(senderId1) && 
+				fileId.equals(fileId1) && chunkNumber.equals(chunkNumber1)){
+			replicated++;
+			System.out.println("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX");
+			if (repDeg == replicated)
+				return true;
+			else return false;
 		}else return false;
     }
 
 	 @Override
 		public void run() {
-	    	String header=msg.getHeader();
-	    	String body=msg.getBody().toString();
-	    	byte[] message=(header+body).getBytes();
+	    	byte[] message=msg.getMessage().getBytes();
 	    	
 			msgPacket = new DatagramPacket(message,message.length, ipAddress, PORT);
 	    	
@@ -71,8 +89,8 @@ public class MDBackup implements Runnable {
 		    	while (!done) {
 		    		socket.send(msgPacket);
 					
-					System.out.println("Server sent MDB UDP: " + msg.header + msg.getBody());
-
+		    		int a=5-attempts;
+					System.out.println("Server sent MDB UDP: "+a+" "+ msg.getHeader()+" "+msg.getBody());
 					Thread.sleep(1000);
 					
 		    		if (checkResponse() || attempts <= 0){

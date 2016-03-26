@@ -1,4 +1,4 @@
-package logic;
+ package logic;
 
 import java.net.DatagramPacket;
 
@@ -11,15 +11,15 @@ public class Message {
 	private DatagramPacket packet;
 	
 	public String header;
-	private byte[] body;
+	private String body;
 	
-	public Message(String header, byte[] body) {
+	public Message(String header,String body) {
 		setHeader(header+CRLF+CRLF);
 		setBody(body);
 	}
 	
-	public byte[] getMessage(){
-		return (header+body.toString()).getBytes();
+	public String getMessage(){
+		return header+body;
 	}
 	
 	public void setHeader(String header) {
@@ -30,11 +30,11 @@ public class Message {
 		return header;
 	}
 
-	public byte[] getBody() {
+	public String getBody() {
 		return body;
 	}
 
-	public void setBody(byte[] body) {
+	public void setBody(String body) {
 		this.body = body;
 	}
 	

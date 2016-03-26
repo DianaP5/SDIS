@@ -3,12 +3,12 @@ package logic;
 public class Chunks {
 	private String fileId;
 	private int number;
-	private byte[] content;
+	private String content;
 
-    public Chunks(String fileId,int number,byte[] content) {
+    public Chunks(String fileId,int number,String s1) {
         this.fileId = fileId;
         this.setNumber(number);
-        this.setContent(content);
+        this.setContent(s1);
     }
 
 	public int getNumber() {
@@ -19,11 +19,11 @@ public class Chunks {
 		this.number = number;
 	}
 
-	public byte[] getContent() {
+	public String getContent() {
 		return content;
 	}
 
-	public void setContent(byte[] content) {
-		this.content = content;
+	public void setContent(String s1) {
+		this.content = s1;
 	}
 }

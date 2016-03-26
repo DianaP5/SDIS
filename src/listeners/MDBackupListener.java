@@ -1,5 +1,7 @@
 package listeners;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
@@ -7,6 +9,7 @@ import java.net.MulticastSocket;
 import java.util.Random;
 
 import service.MessageControl;
+import util.SplitParameters;
 import logic.Message;
 
 public class MDBackupListener implements Runnable {
@@ -18,6 +21,7 @@ public class MDBackupListener implements Runnable {
     private MulticastSocket multiSocket;
     private DatagramPacket msgPacket;
     private InetAddress ipAddress;
+    private int attempts=5;
     
 	public MDBackupListener() throws IOException{
     	ipAddress = InetAddress.getByName(INET_ADDRESS);
@@ -28,16 +32,45 @@ public class MDBackupListener implements Runnable {
 		public void run() {
 	    	try {
 				multiSocket.joinGroup(ipAddress);
-		        setMsgPacket(new DatagramPacket(buf, buf.length));
-		        
-		        while(true){
+
+				while(true){
+		        	
 		        	msgPacket = new DatagramPacket(buf, buf.length);
 	                multiSocket.receive(msgPacket);
 	                
 	                String message = new String(buf, 0, buf.length);
-			        System.out.println("Listener MDB UDP: " + message);
 			        
-			        sendRespond(message);
+			        ////PUTCHUNK <Version> <SenderId> <FileId> <ChunkNo> <ReplicationDeg> <CRLF><CRLF><Body>
+	                String msgType=message.split(" ")[0];
+			    	String version=message.split(" ")[1];
+			    	String senderId=message.split(" ")[2];
+			    	String fileId=message.split(" ")[3];
+			    	String chunkNumber=message.split(" ")[4];
+			    	String body=message.split(Message.CRLF+Message.CRLF)[1];
+			    	
+			    	String b=new String(body.getBytes(),0,10);
+			    	//String header=msgType+" "+version+" "+senderId+" "+fileId+" "+chunkNumber+" "+body+" ";
+			    	
+			        File f1=new File("C:\\Users\\Ricardo\\Desktop\\2");
+			        //Path src=Paths.get(System.getProperty("user.dir")+"\\Files");
+			        		
+			        File newFile = new File(f1,"new "+chunkNumber+".txt");
+			        
+			        System.out.println("Listener MDB UDP: "+ chunkNumber);
+			        
+			        try (FileOutputStream out = new FileOutputStream(newFile)) {
+			        	out.write(b.getBytes(), 0, 10);//tmp is chunk size
+                	}
+			        
+			        System.out.println(attempts);
+			        
+			        //while(attempts > 100){
+			        	sendRespond(message);
+			        	//attempts--;
+			        	//Thread.sleep(100);
+			       // }
+			        
+			     //   attempts=0;
 		        }
 			} catch (IOException | InterruptedException e) {
 				// TODO Auto-generated catch block
@@ -58,7 +91,8 @@ public class MDBackupListener implements Runnable {
 	    	String fileId=splitedMsg[3];
 	    	String chunkNo=splitedMsg[4];
 	    	
-	    	String header="STORED"+" "+version+" "+senderId+" "+fileId+" "+chunkNo+" "+Message.CRLF+Message.CRLF;
+	    	//STORED <Version> <SenderId> <FileId> <ChunkNo> <CRLF><CRLF>
+	    	String header="STORED"+" "+version+" "+senderId+" "+fileId+" "+chunkNo+" ";//+Message.CRLF+Message.CRLF;
 	    	Message m1=new Message(header,null);
 	    	
 	    	Random r1=new Random();

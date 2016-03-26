@@ -18,11 +18,11 @@ public class testing1 {
 			
 			new Thread(l1).start();
 			
-			while(true){
+			//while(true){
 				//if (l1.getMsgPacket() != null)
 					//Message m1=new Message(l1.getMsgPacket());
 				
 				//MessageHandler h1=new MessageHandler(m1);
-			}
+			//}
 		}
 }

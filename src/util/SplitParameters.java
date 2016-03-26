@@ -2,12 +2,22 @@ package util;
 
 public class SplitParameters {
 	
-	public String getParameter(String msg, int index){
+	private String parameter;
+	
+	public SplitParameters(String msg, int index){
 		String[] splited=msg.split(" ");
 		
 		if (index < splited.length)
-			return splited[index];
-		else return splited[splited.length-1];
+			parameter=splited[index];
+		else parameter=splited[splited.length-1];
+	}
+
+	public String getParameter() {
+		return parameter;
+	}
+
+	public void setParameter(String parameter) {
+		this.parameter = parameter;
 	}
 	
 }
