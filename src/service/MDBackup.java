@@ -5,7 +5,6 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 
-import util.SplitParameters;
 import listeners.MessageControlListener;
 import logic.Message;
 
@@ -13,7 +12,7 @@ public class MDBackup implements Runnable {
 	
 	private final static String INET_ADDRESS = "224.0.0.4";
     private final static int PORT = 8887;
-    byte[] buf = new byte[256];
+    byte[] buf = new byte[(1000 * 64)+256];
     
     private DatagramSocket socket;
     private DatagramPacket msgPacket;
@@ -26,15 +25,7 @@ public class MDBackup implements Runnable {
 	private int attempts=5;
 	private int repDeg;
 	private int replicated;
-	
-
-    /*	//PUTCHUNK <Version> <SenderId> <FileId> <ChunkNo> <ReplicationDeg> <CRLF><CRLF><Body>
-    	int version=Integer.parseInt(msg.getParameter(1));
-    	String senderId=msg.getParameter(2);
-    	String fileId=msg.getParameter(3);
-    	int chunkNo=Integer.parseInt(msg.getParameter(4));
-    	int replicationDegree=Integer.parseInt(msg.getParameter(4));*/
-	
+ 
 	public MDBackup(Message msg, int op2) throws IOException{
     	ipAddress = InetAddress.getByName(INET_ADDRESS);		
     	socket = new DatagramSocket();
@@ -54,19 +45,19 @@ public class MDBackup implements Runnable {
     	String senderId=message.split(" ")[2];
     	String fileId=message.split(" ")[3];
     	String chunkNumber=message.split(" ")[4];
-    	
 
     	String version1=msg.getHeader().split(" ")[1];
     	String senderId1=msg.getHeader().split(" ")[2];
     	String fileId1=msg.getHeader().split(" ")[3];
     	String chunkNumber1=msg.getHeader().split(" ")[4];
     	
-    	
     	//STORED <Version> <SenderId> <FileId> <ChunkNo> <CRLF><CRLF>
 		if (msgType.toUpperCase().equals("STORED") && version.equals(version1)&& senderId.equals(senderId1) && 
 				fileId.equals(fileId1) && chunkNumber.equals(chunkNumber1)){
 			replicated++;
-			System.out.println("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX");
+			
+			System.out.println("RECEIVED");
+			
 			if (repDeg == replicated)
 				return true;
 			else return false;
@@ -76,7 +67,7 @@ public class MDBackup implements Runnable {
 	 @Override
 		public void run() {
 	    	byte[] message=msg.getMessage().getBytes();
-	    	
+	    	System.out.println(message.length);
 			msgPacket = new DatagramPacket(message,message.length, ipAddress, PORT);
 	    	
 	  		try {

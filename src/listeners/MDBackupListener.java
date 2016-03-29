@@ -8,15 +8,14 @@ import java.net.InetAddress;
 import java.net.MulticastSocket;
 import java.util.Random;
 
-import service.MessageControl;
-import util.SplitParameters;
 import logic.Message;
+import service.MessageControl;
 
 public class MDBackupListener implements Runnable {
 	
 	private final static String INET_ADDRESS = "224.0.0.4";
     private final static int PORT = 8887;
-    byte[] buf = new byte[256];
+    byte[] buf = new byte[(1000 * 64)+256];
     
     private MulticastSocket multiSocket;
     private DatagramPacket msgPacket;
@@ -36,6 +35,7 @@ public class MDBackupListener implements Runnable {
 				while(true){
 		        	
 		        	msgPacket = new DatagramPacket(buf, buf.length);
+		        	System.out.println(msgPacket.getLength());
 	                multiSocket.receive(msgPacket);
 	                
 	                String message = new String(buf, 0, buf.length);
@@ -48,10 +48,10 @@ public class MDBackupListener implements Runnable {
 			    	String chunkNumber=message.split(" ")[4];
 			    	String body=message.split(Message.CRLF+Message.CRLF)[1];
 			    	
-			    	String b=new String(body.getBytes(),0,10);
+			    	String b=new String(body.getBytes(),0,body.length());
 			    	//String header=msgType+" "+version+" "+senderId+" "+fileId+" "+chunkNumber+" "+body+" ";
 			    	
-			        File f1=new File("C:\\Users\\Ricardo\\Desktop\\2");
+			        File f1=new File(System.getProperty("user.dir")+"\\Resources\\Backup");
 			        //Path src=Paths.get(System.getProperty("user.dir")+"\\Files");
 			        		
 			        File newFile = new File(f1,"new "+chunkNumber+".txt");
@@ -59,7 +59,7 @@ public class MDBackupListener implements Runnable {
 			        System.out.println("Listener MDB UDP: "+ chunkNumber);
 			        
 			        try (FileOutputStream out = new FileOutputStream(newFile)) {
-			        	out.write(b.getBytes(), 0, 10);//tmp is chunk size
+			        	out.write(b.getBytes(), 0, b.length());//tmp is chunk size
                 	}
 			        
 			        System.out.println(attempts);

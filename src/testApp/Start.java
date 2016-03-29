@@ -1,9 +1,12 @@
 package testApp;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
@@ -20,184 +23,147 @@ import service.MDBackup;
 import util.HashFile;
 
 public class Start {
+
+	private static String peerId = "1";
+	private static String msgType = "PUTCHUNK";
+	private static String version = "1.0";
+	private static String op1 = "C:\\Users\\Ricardo\\Desktop\\cars.txt";
+	private static String op2 = "1";
 	
-	private static String peerId="1"; //<IP address>:<port number>
-	private static String msgType="PUTCHUNK";
-	private static String version="1.0";
-	private static String op1="C:\\Users\\Ricardo\\Desktop\\cars.txt";
-	private static String op2="1";
-	//private static ArrayList<FileSys> filesList;
-	
-	public static void main(String[] args) throws IOException, NoSuchAlgorithmException, InterruptedException{
-		//Message m1=new Message(null);
-		//java TestApp <peer_ap> <sub_protocol> <opnd_1> <opnd_2>
+	public static void main(String[] args) throws IOException,
+			NoSuchAlgorithmException, InterruptedException {
 		
-	/*	System.out.println("Length: "+args.length);
-		String header="PUTCHUNK 1.2 1 2 3 2 \r\n \r\n";
-		m1.setHeader(header);
-		byte[] body={(byte) 01010101010};
-		m1.setBody(body);
-		*/
-		//String filePath=header.split(" ")[2];
-		//MessageHandler h1=new MessageHandler(m1);
-		
-		/*if (args.length < 3 || args.length > 4)
+	/*	if (args.length < 3 || args.length > 4) 
 			System.out.println("Error: Ivalid number of arguments [3,4] :"+args.length);
-		else{
+		else{ 
 			peerId=args[0];
 			msgType=args[1];
 			op1=args[2];
 			op2=args[3];
-			
-			//handleFile();
-			handler(msgType);
 		}*/
-		handler(msgType);
-		//handleFile();
-		//splitFile(new File("C:\\Users\\Ricardo\\Desktop\\2\\7tcp.pdf"));
-		//copyFile();
-		//MessageHandler h1=new MessageHandler(m1);
 		
-				//PUTCHUNK <Version> <SenderId> <FileId> <ChunkNo> <ReplicationDeg> <CRLF><CRLF><Body>
+		//String header=msgType+" "+peerId+" "+op1+" "+op2+" "+Message.CRLF+Message.CRLF;
+		String header="120.210.02:8888 PUTCHUNK C:\\Users\\Ricardo\\Desktop\\7tcp.pdf 1";
+		ClientTCP c1=new ClientTCP(header);
+		
+		// java TestApp <peer_ap> <sub_protocol> <opnd_1> <opnd_2>
+		// PUTCHUNK <Version> <SenderId> <FileId> <ChunkNo> <ReplicationDeg>
+		restore();
 	}
-	
-	 public static void splitFile(FileSys file) throws IOException {
-	        int counter = 0;
-	        int eachFileSize = 10; //1024 * 64; //64Kb
-	       
-	        
 
-	        try (BufferedInputStream bis = new BufferedInputStream(
-	                new FileInputStream(op1))) {
 
-	        	int tmp = 0;
-	            File f1=new File(op1);
-	            long actualFileSize=f1.length();
-	            int nChunks=0;
-	            
-	            if (actualFileSize < eachFileSize)
-	            	eachFileSize=(int) actualFileSize;
-	            else{ 
-	            	double times= actualFileSize % eachFileSize;
-	            	nChunks=(int) Math.floor(times);
-	            }
-	            
-	            byte[] buffer = new byte[eachFileSize];
-	            
-	            while ((tmp = bis.read(buffer)) > 0) {
-	            	//File newFile = new File(f1.getParent(), "new" + "."+counter+".txt");
-	            	String s1=new String(buffer,0,buffer.length);
-	            	
-	            	if (nChunks > 0 && (counter + 1 >= nChunks)){ 
-		            		int lastChunkSize=(int) (actualFileSize-((nChunks-1)*eachFileSize));
-		            		s1=new String(buffer,0,lastChunkSize);
-		            }
-	            	
-	                Chunks c1=new Chunks(file.getId(),counter,s1);
-	                file.addChunk(c1);
-	                counter++;
-	                System.out.println("File part "+counter+": "+s1);
-	               /* try (FileOutputStream out = new FileOutputStream(newFile)) {
-	                    out.write(s1.getBytes(), 0,10);//tmp is chunk size
-	                }*/
-	            }
-	        }
-	    }
+	public static void splitFile(FileSys file) throws IOException {
+		int counter = 0;
+		int eachFileSize = 1024 * 64; //64Kb
 
-	public static void handler(String msgType) throws IOException, NoSuchAlgorithmException, InterruptedException {
+		try (BufferedInputStream bis = new BufferedInputStream(
+				new FileInputStream(op1))) {
 
-		switch (msgType) {
-            case "PUTCHUNK":
-            	FileSys f1=createFile();
-            	splitFile(f1);
-                
-        		int numberChunks=f1.getChunksList().size();
-        		int i=0;
-        		
-        		while(i < numberChunks){
-        			//PUTCHUNK <Version> <SenderId> <FileId> <ChunkNo> <ReplicationDeg> <CRLF><CRLF><Body>
-        			Chunks c1=f1.getChunksList().get(i);
-        			String header=msgType+" "+version+" "+peerId+" "+f1.getId()+" "+c1.getNumber()+" "+op2+" ";
-        			Message m1=new Message(header,c1.getContent());
-        			
-        			MDBackup b1=new MDBackup(m1,Integer.parseInt(op2));
-        			System.out.println("Nova thread chunk "+ c1.getNumber()+" "+ c1.getContent().toString());
-                	new Thread(b1).start();
-                	Thread.sleep(1000);
-                	
-                	i++;
-        		}
-            	
-            	//putChunkHandler(msg);
-                break;
-            case "GETCHUNK":
-                System.out.println("1");
-                break; 
-            case "STORED":
-               // storedChunkHandler(" !");
-                break;
-            case "CHUNK":
-                System.out.println("1");
-                break;
-            case "DELETE":
-                System.out.println("1");
-                break;
-            case "REMOVED":
-                System.out.println("1");
-                break;
-            default:
-            	System.out.println("Error: Wrong MessageType argument: "+msgType);
-                break;
-        }
-    }
+			int tmp = 0;
+			File f1 = new File(op1);
+			long actualFileSize = f1.length();
+			int nChunks = 0;
 
-	private static FileSys createFile() throws IOException, NoSuchAlgorithmException {
-		
-		Path filePath = Paths.get(op1);
-		//long f=new File(op1).lastModified();
-		//System.out.println(f);
-		
-		String fileName=filePath.getFileName().toString();
-		String fileCreationTime = Files.readAttributes(filePath, BasicFileAttributes.class).creationTime().toString();
-		
-		HashFile h1=new HashFile(fileName+" "+op1+" "+fileCreationTime);
-		String hash=h1.getHash().toString();
-		
-		FileSys f1=new FileSys(Integer.parseInt(peerId),hash,Integer.parseInt(op2));
-		
-		return f1;
+			if (actualFileSize < eachFileSize)
+				eachFileSize = (int) actualFileSize;
+			else {
+				double times = actualFileSize % eachFileSize;
+				nChunks = (int) Math.floor(times);
+			}
+
+			byte[] buffer = new byte[eachFileSize];
+
+			while ((tmp = bis.read(buffer)) > 0) {
+				// File newFile = new File(f1.getParent(), "new" +
+				// "."+counter+".txt");
+				String s1 = new String(buffer, 0, buffer.length);
+
+				if (nChunks > 0 && (counter + 1 >= nChunks)) {
+					int lastChunkSize = (int) (actualFileSize - ((nChunks - 1) * eachFileSize));
+					s1 = new String(buffer, 0, lastChunkSize);
+				}
+
+				Chunks c1 = new Chunks(file.getId(), counter, s1);
+				file.addChunk(c1);
+				counter++;
+				System.out.println("File part " + counter + ": " + s1);
+				/*
+				 * try (FileOutputStream out = new FileOutputStream(newFile)) {
+				 * out.write(s1.getBytes(), 0,10);//tmp is chunk size }
+				 */
+			}
+		}
 	}
+
 	
 
-	public static void copyFile(String source,String destination) throws IOException{
-		
-		Path src=Paths.get(source);
-		Path dest=Paths.get(destination);
-		
-		//src.getFileName();
-		//System.out.println(s.getFileName());
-		//relative
-		//Path src=Paths.get(System.getProperty("user.dir")+"\\Files\\cars.txt");
-	
-		Files.copy(src,dest,StandardCopyOption.REPLACE_EXISTING);
-		
+
+
+	public static void copyFile(String source, String destination)
+			throws IOException {
+
+		Path src = Paths.get(source);
+		Path dest = Paths.get(destination);
+
+		// src.getFileName();
+		// System.out.println(s.getFileName());
+		// relative
+		// Path
+		// src=Paths.get(System.getProperty("user.dir")+"\\Files\\cars.txt");
+
+		Files.copy(src, dest, StandardCopyOption.REPLACE_EXISTING);
+
 	}
-	
-	public static void readFiles(){
 
-		Charset charset = Charset.forName("UTF-8 ");//"ISO-8859-1");//"US-ASCII");
-		//Path path=(Path) FileSystems.getFileSystem(URI.create(op1));
+	public static void readFiles() {
+
+		Charset charset = Charset.forName("UTF-8 ");// "ISO-8859-1");//"US-ASCII");
+		// Path path=(Path) FileSystems.getFileSystem(URI.create(op1));
 		Path path = Paths.get(op1);
-		
+
 		try (BufferedReader reader = Files.newBufferedReader(path, charset)) {
-		    String line = null;
-		    while ((line = reader.readLine()) != null) {
-		        System.out.println(line);
-		    }
+			String line = null;
+			while ((line = reader.readLine()) != null) {
+				System.out.println(line);
+			}
 		} catch (IOException x) {
-		    System.err.format("IOException: %s%n", x);
+			System.err.format("IOException: %s%n", x);
 		}
 	}
 	
-	
+	//merge splited files
+	public static void restore() throws IOException {
+		int nParts = getNumberParts(op1);
+		System.out.println(nParts);
+
+		File f1 = new File(System.getProperty("user.dir")
+				+ "\\Resources\\Restored\\carsR.pdf");
+
+		BufferedOutputStream out = new BufferedOutputStream(
+				new FileOutputStream(f1));
+		for (int part = 0; part < nParts; part++) {
+			BufferedInputStream in = new BufferedInputStream(
+					new FileInputStream(System.getProperty("user.dir")
+							+ "\\Resources\\Backup\\" + "new " + part + ".txt"));
+			int b;
+			while ((b = in.read()) != -1)
+				out.write(b);
+
+			in.close();
+		}
+		out.close();
+	}
+
+	private static int getNumberParts(String baseFilename) throws IOException {
+		File directory = new File(System.getProperty("user.dir")
+				+ "\\Resources\\Backup");
+
+		String[] matchingFiles = directory.list(new FilenameFilter() {
+			public boolean accept(File dir, String name) {
+				return name.matches("new \\d+\\.txt");
+			}
+		});
+		
+		return matchingFiles.length;
+	}
 }
