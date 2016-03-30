@@ -1,5 +1,6 @@
 package testApp;
 
+import java.awt.image.BufferedImage;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
@@ -16,10 +17,13 @@ import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.security.NoSuchAlgorithmException;
 
+import javax.imageio.ImageIO;
+
 import logic.Chunks;
 import logic.FileSys;
 import logic.Message;
 import service.MDBackup;
+import service.MessageHandler;
 import util.HashFile;
 
 public class Start {
@@ -29,32 +33,30 @@ public class Start {
 	private static String version = "1.0";
 	private static String op1 = "C:\\Users\\Ricardo\\Desktop\\cars.txt";
 	private static String op2 = "1";
-	
+
 	public static void main(String[] args) throws IOException,
 			NoSuchAlgorithmException, InterruptedException {
-		
-	/*	if (args.length < 3 || args.length > 4) 
-			System.out.println("Error: Ivalid number of arguments [3,4] :"+args.length);
-		else{ 
-			peerId=args[0];
-			msgType=args[1];
-			op1=args[2];
-			op2=args[3];
-		}*/
-		
-		//String header=msgType+" "+peerId+" "+op1+" "+op2+" "+Message.CRLF+Message.CRLF;
-		String header="120.210.02:8888 PUTCHUNK C:\\Users\\Ricardo\\Desktop\\7tcp.pdf 1";
-		ClientTCP c1=new ClientTCP(header);
-		
-		// java TestApp <peer_ap> <sub_protocol> <opnd_1> <opnd_2>
-		// PUTCHUNK <Version> <SenderId> <FileId> <ChunkNo> <ReplicationDeg>
-		restore();
-	}
 
+		/*
+		 * if (args.length < 3 || args.length > 4)
+		 * System.out.println("Error: Ivalid number of arguments [3,4] :"
+		 * +args.length); else{ peerId=args[0]; msgType=args[1]; op1=args[2];
+		 * op2=args[3]; }
+		 */
+
+		// String
+		// header=msgType+" "+peerId+" "+op1+" "+op2+" "+Message.CRLF+Message.CRLF;
+		String header = "120.210.02:8888 BACKUP C:\\Users\\Ricardo\\Desktop\\cars.txt 1";
+		ClientTCP c1=new ClientTCP(header);
+		//MessageHandler.ImageSplitTest();
+		// java TestApp <peer_ap> <sub_protocol> <opnd_1> <opnd_2>
+		//BACKUP, RESTORE, DELETE, RECLAIM
+		//restore();
+	}
 
 	public static void splitFile(FileSys file) throws IOException {
 		int counter = 0;
-		int eachFileSize = 1024 * 64; //64Kb
+		int eachFileSize = 1000 * 64; // 64Kb
 
 		try (BufferedInputStream bis = new BufferedInputStream(
 				new FileInputStream(op1))) {
@@ -95,10 +97,6 @@ public class Start {
 		}
 	}
 
-	
-
-
-
 	public static void copyFile(String source, String destination)
 			throws IOException {
 
@@ -130,21 +128,21 @@ public class Start {
 			System.err.format("IOException: %s%n", x);
 		}
 	}
-	
-	//merge splited files
+
+	// merge splited files
 	public static void restore() throws IOException {
-		int nParts = getNumberParts(op1);
+		int nParts = getNumberParts();
 		System.out.println(nParts);
 
 		File f1 = new File(System.getProperty("user.dir")
-				+ "\\Resources\\Restored\\carsR.pdf");
+				+ "\\Resources\\Restored\\restaured.png");
 
 		BufferedOutputStream out = new BufferedOutputStream(
 				new FileOutputStream(f1));
 		for (int part = 0; part < nParts; part++) {
 			BufferedInputStream in = new BufferedInputStream(
 					new FileInputStream(System.getProperty("user.dir")
-							+ "\\Resources\\Backup\\" + "new " + part + ".txt"));
+							+ "\\Resources\\Backup\\" + "new " + part + ".bak"));
 			int b;
 			while ((b = in.read()) != -1)
 				out.write(b);
@@ -154,16 +152,55 @@ public class Start {
 		out.close();
 	}
 
-	private static int getNumberParts(String baseFilename) throws IOException {
+	private static int getNumberParts() throws IOException {
 		File directory = new File(System.getProperty("user.dir")
 				+ "\\Resources\\Backup");
 
 		String[] matchingFiles = directory.list(new FilenameFilter() {
 			public boolean accept(File dir, String name) {
-				return name.matches("new \\d+\\.txt");
+				return name.matches("new \\d+\\.bak");
 			}
 		});
-		
+
 		return matchingFiles.length;
+	}
+
+	public void mergeImg() throws IOException {
+		int rows = 2; // we assume the no. of rows and cols are known and each
+						// chunk has equal width and height
+		int cols = 2;
+		int chunks = rows * cols;
+
+		int chunkWidth, chunkHeight;
+		int type;
+		// fetching image files
+		File[] imgFiles = new File[chunks];
+		for (int i = 0; i < chunks; i++) {
+			imgFiles[i] = new File("archi" + i + ".jpg");
+		}
+
+		// creating a bufferd image array from image files
+		BufferedImage[] buffImages = new BufferedImage[chunks];
+		for (int i = 0; i < chunks; i++) {
+			buffImages[i] = ImageIO.read(imgFiles[i]);
+		}
+		type = buffImages[0].getType();
+		chunkWidth = buffImages[0].getWidth();
+		chunkHeight = buffImages[0].getHeight();
+
+		// Initializing the final image
+		BufferedImage finalImg = new BufferedImage(chunkWidth * cols,
+				chunkHeight * rows, type);
+
+		int num = 0;
+		for (int i = 0; i < rows; i++) {
+			for (int j = 0; j < cols; j++) {
+				finalImg.createGraphics().drawImage(buffImages[num],
+						chunkWidth * j, chunkHeight * i, null);
+				num++;
+			}
+		}
+		System.out.println("Image concatenated.....");
+		ImageIO.write(finalImg, "jpeg", new File("finalImg.jpg"));
 	}
 }

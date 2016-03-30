@@ -9,21 +9,23 @@ import java.security.NoSuchAlgorithmException;
 
 public class ServerTCP implements Runnable {
 	
-	private int id;
-	private int PORT=4444;
+	private int PORT;
 	final static int BUFF_SIZE = 256;
 	private static Socket clientSocket;
+	private static String header;
 
-	public ServerTCP() throws IOException {
+	public ServerTCP(String header) throws IOException {
+		this.PORT=Integer.parseInt(header.split(" ")[0]);
+		this.header=header;
 		
 		// creates socket
 		ServerSocket serverSocket = new ServerSocket(PORT);
 
 		//while (true) {
-			serverSocket.setReceiveBufferSize(BUFF_SIZE);
-			// waits for clients
-			System.out.println("waiting...");
-			clientSocket = serverSocket.accept();
+		serverSocket.setReceiveBufferSize(BUFF_SIZE);
+		// waits for clients
+		System.out.println("waiting...");
+		clientSocket = serverSocket.accept();
 		//}
 	}
 
@@ -36,10 +38,10 @@ public class ServerTCP implements Runnable {
 
 			String message = in.readLine();
 			
-			id=Integer.parseInt(message.split(" ")[0].split(":")[1]);
-			
-			MessageHandler h1=new MessageHandler(message);
-			
+			//id=Integer.parseInt(message.split(" ")[0].split(":")[1]);
+
+			MessageHandler h1=new MessageHandler(message,header);
+
 			clientSocket.close();
 		} catch (IOException | NoSuchAlgorithmException | InterruptedException e) {
 			e.printStackTrace();

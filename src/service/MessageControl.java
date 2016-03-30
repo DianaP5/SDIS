@@ -9,8 +9,8 @@ import logic.Message;
 
 public class MessageControl implements Runnable{
 	
-	private final static String INET_ADDRESS = "224.0.0.3";
-    private final static int PORT = 8888;
+	private static String INET_ADDRESS; // = "224.0.0.3";
+    private static int PORT; // = 8888;
     byte[] buf = new byte[256];
     
     private DatagramSocket socket;
@@ -18,7 +18,10 @@ public class MessageControl implements Runnable{
     private InetAddress ipAddress;
     private Message msg;
     
-	public MessageControl(Message msg) throws IOException {
+	public MessageControl(Message msg,String ip,int port) throws IOException {
+		this.INET_ADDRESS=ip;
+		this.PORT=port;
+		
     	ipAddress = InetAddress.getByName(INET_ADDRESS);		
     	socket = new DatagramSocket();
     	this.msg=msg;

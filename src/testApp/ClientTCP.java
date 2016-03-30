@@ -8,17 +8,16 @@ import java.net.UnknownHostException;
 public class ClientTCP {
 
 	String hostName;
-	int PORT=4444;
+	int PORT=4446;
 
 	public ClientTCP (String msg) {
 		
 		try{
-			Socket socket = new Socket(InetAddress.getLocalHost(), PORT);
+			Socket socket = new Socket(InetAddress.getLocalHost(), PORT); //ip //InetAddress.getLocalHost().getHostName()
 		    PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
 			
 		    //write to server
 		    out.println(msg);
-		    
 		    socket.close();
          
 		} catch (UnknownHostException e) {

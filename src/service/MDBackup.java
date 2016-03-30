@@ -10,9 +10,11 @@ import logic.Message;
 
 public class MDBackup implements Runnable {
 	
-	private final static String INET_ADDRESS = "224.0.0.4";
-    private final static int PORT = 8887;
-    byte[] buf = new byte[(1000 * 64)+256];
+	private static String INET_ADDRESS;// = "224.0.0.4";
+    private static int PORT;// = 8887;
+    byte[] buf = new byte[256];//(1000 * 64)+256];
+    private static String MC_IP;
+    private static int MC_PORT;
     
     private DatagramSocket socket;
     private DatagramPacket msgPacket;
@@ -26,11 +28,15 @@ public class MDBackup implements Runnable {
 	private int repDeg;
 	private int replicated;
  
-	public MDBackup(Message msg, int op2) throws IOException{
+	public MDBackup(Message msg, int op2,String ip,int p,String ip1,int p1) throws IOException{
     	ipAddress = InetAddress.getByName(INET_ADDRESS);		
     	socket = new DatagramSocket();
     	this.msg=msg;
     	this.repDeg=op2;
+    	this.MC_IP=ip;
+    	this.MC_PORT=p;
+    	this.INET_ADDRESS=ip1;
+    	this.PORT=p1;
 	}
 
 	private boolean checkResponse() throws IOException, InterruptedException {
@@ -67,15 +73,13 @@ public class MDBackup implements Runnable {
 	 @Override
 		public void run() {
 	    	byte[] message=msg.getMessage().getBytes();
-	    	System.out.println(message.length);
 			msgPacket = new DatagramPacket(message,message.length, ipAddress, PORT);
 	    	
 	  		try {
 	  			
-	  			listener=new MessageControlListener();
+	  			listener=new MessageControlListener(MC_IP,MC_PORT);
 
-		    	Thread t1=new Thread(listener);
-		    	t1.start();
+		    	new Thread(listener).start();
 		    	
 		    	while (!done) {
 		    		socket.send(msgPacket);

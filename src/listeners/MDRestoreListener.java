@@ -11,7 +11,7 @@ import java.util.Random;
 import logic.Message;
 import service.MessageControl;
 
-public class MDBackupListener implements Runnable {
+public class MDRestoreListener implements Runnable {
 	
 	private static String INET_ADDRESS; //= "224.0.0.4";
     private static int PORT; // = 8887;
@@ -25,7 +25,7 @@ public class MDBackupListener implements Runnable {
     private InetAddress ipAddress;
     private int attempts=5;
     
-	public MDBackupListener(String ip,int p,String ip1,int p1) throws IOException{
+	public MDRestoreListener(String ip,int p,String ip1,int p1) throws IOException{
 		this.MC_IP=ip;
     	this.MC_PORT=p;
     	this.INET_ADDRESS=ip1;

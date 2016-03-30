@@ -7,8 +7,8 @@ import java.net.MulticastSocket;
 
 public class MessageControlListener implements Runnable {
 	
-		private final static String INET_ADDRESS = "224.0.0.3";
-	    private final static int PORT = 8888;
+		private static String INET_ADDRESS; // = "224.0.0.3";
+	    private static int PORT; //= 8888;
 	    public byte[] buf = new byte[64];
 	    
 	    private MulticastSocket multiSocket;
@@ -16,7 +16,10 @@ public class MessageControlListener implements Runnable {
 	    private InetAddress ipAddress;
 	    private boolean received=false;
 	    
-		public MessageControlListener() throws IOException {
+		public MessageControlListener(String ip,int port) throws IOException {
+			this.INET_ADDRESS=ip;
+			this.PORT=port;
+			
 	    	ipAddress = InetAddress.getByName(INET_ADDRESS);
 	    	multiSocket = new MulticastSocket(PORT);
 	    }
@@ -32,10 +35,11 @@ public class MessageControlListener implements Runnable {
 		        
 		        String message = new String(buf, 0, buf.length);
 		        
-		        Thread.sleep(1000);
+		        //Thread.sleep(1000);
 		        
 		        System.out.println("Listener received MC: " + message);
-			} catch (IOException | InterruptedException e) {
+		        multiSocket.close();
+			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
