@@ -11,6 +11,7 @@ import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.security.NoSuchAlgorithmException;
 
+import listeners.MDRestoreListener;
 import logic.Chunks;
 import logic.FileSys;
 import logic.Message;
@@ -92,8 +93,14 @@ public class MessageHandler {
 				+ fileId + " " + chunkNo + " ";
 		
 		Message m1 = new Message(header,null);
+		
 		MessageControl mc1=new MessageControl(m1, MC_IP, MC_PORT);
 		
+		new Thread(mc1).start();
+		
+		MDRestoreListener r1=new MDRestoreListener(MDR_IP, MDR_PORT);
+		
+		new Thread(r1).start();
 		//MDRestore b1 = new MDRestore(m1,ip,p,ip1,p1);
 		
 	//	MessageControl mc1 = new MessageControl(msg);
@@ -121,6 +128,7 @@ public class MessageHandler {
 			// " "
 			// + c1.getContent().toString());
 			new Thread(b1).start();
+			
 			Thread.sleep(1000);
 
 			i++;
@@ -159,10 +167,14 @@ public class MessageHandler {
 			int tmp;
 			File f1 = new File(filePath);
 			long actualFileSize = f1.length();
-			System.out.println(actualFileSize);
+			//System.out.println(actualFileSize);
 			
 			int nChunks = 0;
-
+			boolean multiple=false;
+			
+			if (actualFileSize % eachFileSize == 0)
+				multiple=true;
+					
 			if (actualFileSize < eachFileSize)
 				eachFileSize = (int) actualFileSize;
 			else {
@@ -193,6 +205,11 @@ public class MessageHandler {
 				 * out.write(s1.getBytes(), 0,10);//tmp is chunk size }
 				 */
 			}
+		if (multiple){
+			Chunks c1 = new Chunks(file.getId(), counter," ");
+			file.addChunk(c1);
+		}
+		
 		}
 	}
 

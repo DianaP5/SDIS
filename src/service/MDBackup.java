@@ -77,7 +77,7 @@ public class MDBackup implements Runnable {
 	    	
 	  		try {
 	  			
-	  			listener=new MessageControlListener(MC_IP,MC_PORT);
+	  			listener=new MessageControlListener(MC_IP,MC_PORT,"null",0);
 
 		    	new Thread(listener).start();
 		    	

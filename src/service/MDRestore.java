@@ -1,9 +1,15 @@
 package service;
 
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.util.Random;
 
 import listeners.MessageControlListener;
 import logic.Message;
@@ -38,63 +44,60 @@ public class MDRestore implements Runnable {
     	this.PORT=p1;
 	}
 
-	private boolean checkResponse() throws IOException, InterruptedException {
-
-		if (!listener.getReceived())
-    		return false;
-    	
-    	String message = new String(listener.buf, 0, listener.buf.length);
-		
-    	String msgType=message.split(" ")[0];
-    	String version=message.split(" ")[1];
-    	String senderId=message.split(" ")[2];
-    	String fileId=message.split(" ")[3];
-    	String chunkNumber=message.split(" ")[4];
-
-    	String version1=msg.getHeader().split(" ")[1];
-    	String senderId1=msg.getHeader().split(" ")[2];
-    	String fileId1=msg.getHeader().split(" ")[3];
-    	String chunkNumber1=msg.getHeader().split(" ")[4];
-    	
-    	//STORED <Version> <SenderId> <FileId> <ChunkNo> <CRLF><CRLF>
-		if (msgType.toUpperCase().equals("STORED") && version.equals(version1)&& senderId.equals(senderId1) && 
-				fileId.equals(fileId1) && chunkNumber.equals(chunkNumber1)){
-			replicated++;
-			
-			System.out.println("RECEIVED");
-			
-			if (repDeg == replicated)
-				return true;
-			else return false;
-		}else return false;
-    }
-
 	 @Override
 		public void run() {
-	    	byte[] message=msg.getMessage().getBytes();
-			msgPacket = new DatagramPacket(message,message.length, ipAddress, PORT);
+	    	String message=msg.getMessage().getBytes().toString();
 	    	
 	  		try {
 	  			
-	  			listener=new MessageControlListener(MC_IP,MC_PORT);
-
-		    	new Thread(listener).start();
-		    	
 		    	while (!done) {
+		    		//GETCHUNK <Version> <SenderId> <FileId> <ChunkNo> <CRLF><CRLF>
+		    		//CHUNK <Version> <SenderId> <FileId> <ChunkNo> <CRLF><CRLF><Body>
+		    		
+					String version = message.split(" ")[1];
+					String senderId = message.split(" ")[2];
+					String fileId = message.split(" ")[3] ;
+					int chunkNo = Integer.parseInt(message.split(" ")[4]);
+		    		
+		    		String chunk=getChunk(fileId,chunkNo);
+		    		
+		    		String header="CHUNK"+" "+version+" "+senderId+" "+fileId+" "+chunkNo+" ";
+		    		Message m1=new Message(header,chunk);
+		    		
+		    		byte[] msg=m1.getMessage().getBytes();
+		    		
+		    		msgPacket = new DatagramPacket(msg,msg.length, ipAddress, PORT);
+		    		
+		    		Random r1=new Random();
+		    		int delay = r1.nextInt((400 - 0) + 1) + 0;
+			    	Thread.sleep(delay);
+			    	
 		    		socket.send(msgPacket);
-					
+		    		
 		    		int a=5-attempts;
-					System.out.println("Server sent MDB UDP: "+a+" "+ msg.getHeader()+" "+msg.getBody());
+					System.out.println("Server sent MDR UDP: "+a+" "+ m1.getHeader()+" "+m1.getBody());
 					Thread.sleep(1000);
-					
-		    		if (checkResponse() || attempts <= 0){
-		    			done=true;
-		    		}else attempts--;
 		    	}
-		    	
 			} catch (IOException | InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-		}   
+		}
+
+	private String getChunk(String fileId, int chunkNo) throws UnsupportedEncodingException, FileNotFoundException, IOException {
+		String s1 = null;
+		
+		try (BufferedReader bis = new BufferedReader(
+		           new InputStreamReader(
+		                      new FileInputStream(System.getProperty("user.dir")
+		                    			+ "\\Resources\\Backup\\" + fileId+" "+ chunkNo + ".bak"), "UTF-8"))) {
+ 			int tmp;
+ 			char[] buffer=new char[256]; //1000*64;
+ 			
+ 			while ((tmp = bis.read(buffer)) > 0 ) {
+ 				s1 = new String(buffer, 0, buffer.length);
+ 		}
+		return s1;
+	}   
+}
 }
