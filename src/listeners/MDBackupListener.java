@@ -53,6 +53,7 @@ public class MDBackupListener implements Runnable {
 			    	String senderId=message.split(" ")[2];
 			    	String fileId=message.split(" ")[3];
 			    	String chunkNumber=message.split(" ")[4];
+			    	String degree=message.split(" ")[5];
 			    	String body=message.split(Message.CRLF+Message.CRLF)[1];
 			    	//System.out.println("LENGTH: "+body.length());
 			    	
@@ -65,6 +66,10 @@ public class MDBackupListener implements Runnable {
 			        File newFile = new File(f1,fileId+" "+chunkNumber+".bak");
 			        
 			        System.out.println("Listener MDB UDP: "+ chunkNumber);
+			        
+			    	if (server.db.getH1().get(fileId) != null)
+			    		break;
+			    	else server.db.insertValue(fileId+" "+chunkNumber, Integer.parseInt(degree));
 			        
 			        try (FileOutputStream out = new FileOutputStream(newFile)) {
 			        	out.write(body.getBytes(), 0, body.length());//tmp is chunk size

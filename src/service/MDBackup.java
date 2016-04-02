@@ -38,10 +38,10 @@ public class MDBackup implements Runnable {
     	this.server=server;
 	}
 
-	private boolean checkResponse(String s) {
+	private boolean checkResponse(String name,String chunkNo) {
 
-		if (server.db.getH1().get(s) != null)
-			if ((Integer) server.db.getH1().get(s) == repDeg)
+		if (server.db.getH1().get(name+" "+chunkNo) != null)
+			if ((Integer) server.db.getH1().get(name+" "+chunkNo) == server.db.getH1().get(name))
 				return true;
 		
 		return false;
@@ -63,7 +63,7 @@ public class MDBackup implements Runnable {
 					String name=msg.getHeader().split(" ")[3];
 					String chunkNo=msg.getHeader().split(" ")[4];
 					
-		    		if (checkResponse(name+" "+chunkNo) || attempts <= 0){
+		    		if (checkResponse(name,chunkNo) || attempts <= 0){
 		    			done=true;
 		    		}else attempts--;
 		    	}

@@ -146,9 +146,9 @@ public class MessageHandler {
 
 		int numberChunks = f1.getChunksList().size();
 		int i = 0;
-
-		server.db.insertValue(degree+" "+f1.getId(), Integer.parseInt(degree));
 		
+		server.db.insertValue(f1.getId(),Integer.parseInt(degree));
+
 		while (i < numberChunks) {
 			// PUTCHUNK <Version> <SenderId> <FileId> <ChunkNo>
 			// <ReplicationDeg> <CRLF><CRLF><Body>

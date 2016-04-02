@@ -46,8 +46,8 @@ public class Start {
 
 		// String
 		// header=msgType+" "+peerId+" "+op1+" "+op2+" "+Message.CRLF+Message.CRLF;
-		//String header = "120.210.02:8888 BACKUP C:\\Users\\Ricardo\\Desktop\\cars.txt 1";
-		String header = "120.210.02:8888 DELETE ae324c94b5b6441286775114e356e5a46a6ca445fe4a353c1c567bac3ce5a00a";
+		String header = "120.210.02:8888 BACKUP C:\\Users\\Ricardo\\Desktop\\cars.txt 1";
+		//String header = "120.210.02:8888 DELETE ae324c94b5b6441286775114e356e5a46a6ca445fe4a353c1c567bac3ce5a00a";
 		//TODO receber o nome do ficheiro originar-> guardar em logs
 		
 		//java TestApp 1923 RESTORE test1.pdf
