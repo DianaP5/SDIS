@@ -39,6 +39,7 @@ public class ServerTCP implements Runnable {
 	//public int degree=0;
 	
 	public ServerTCP(String header) throws IOException, SQLException {
+		
 		this.PORT=Integer.parseInt(header.split(" ")[0]);
 		this.header=header;
 		
@@ -51,6 +52,8 @@ public class ServerTCP implements Runnable {
 		this.MDR_IP = header.split(" ")[3].split(":")[0];
 		this.MDR_PORT = Integer.parseInt(header.split(" ")[3].split(":")[1]);
 		
+		startListeners();
+		
 		ServerSocket serverSocket = new ServerSocket(PORT);
 		
 		this.db=new Db();
@@ -59,7 +62,7 @@ public class ServerTCP implements Runnable {
 		serverSocket.setReceiveBufferSize(BUFF_SIZE);
 		// waits for clients
 		System.out.println("waiting...");
-		startListeners();
+		
 		
 		clientSocket = serverSocket.accept();
 		//}
@@ -88,7 +91,7 @@ public class ServerTCP implements Runnable {
 	
 	public void startListeners() throws IOException{
 
-		setBackupListener(new MDBackupListener(MDB_IP, MDB_PORT,this)); 
+		setBackupListener(new MDBackupListener(MC_IP,MC_PORT,MDB_IP, MDB_PORT,this)); 
 		setRestoreListener(new MDRestoreListener(MDR_IP, MDR_PORT));
 		setMessageControlListener(new MessageControlListener(MC_IP, MC_PORT,MDR_IP,MDR_PORT,this)); 
 		

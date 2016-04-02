@@ -18,6 +18,7 @@ public class MDRestoreListener implements Runnable {
     private MulticastSocket multiSocket;
     private DatagramPacket msgPacket;
     private InetAddress ipAddress;
+    private boolean received;
     
 	public MDRestoreListener(String ip,int p) throws IOException{
     	this.INET_ADDRESS=ip;
@@ -35,6 +36,8 @@ public class MDRestoreListener implements Runnable {
 				while(true){
 		        	msgPacket = new DatagramPacket(buf, buf.length);
 	                multiSocket.receive(msgPacket);
+	                setReceived(true);
+	                
 	                System.out.println(msgPacket.getLength());
 	                String message = new String(buf, 0, msgPacket.getLength());
 
@@ -76,5 +79,13 @@ public class MDRestoreListener implements Runnable {
 
 		public void setMsgPacket(DatagramPacket msgPacket) {
 			this.msgPacket = msgPacket;
+		}
+
+		public boolean getReceived() {
+			return received;
+		}
+
+		public void setReceived(boolean received) {
+			this.received = received;
 		}
 }

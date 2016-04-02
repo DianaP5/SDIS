@@ -33,11 +33,13 @@ public class MDRestore implements Runnable {
 	private int attempts=5;
 	private int repDeg;
 	private int replicated;
+	private ServerTCP server;
  
-	public MDRestore(Message msg, String ip,int p) throws IOException{
+	public MDRestore(Message msg, String ip,int p,ServerTCP server) throws IOException{
     	ipAddress = InetAddress.getByName(INET_ADDRESS);		
     	socket = new DatagramSocket();
     	this.msg=msg;
+    	this.server=server;
     	
     	this.INET_ADDRESS=ip;
     	this.PORT=p;
@@ -72,7 +74,9 @@ public class MDRestore implements Runnable {
 		    		int delay = r1.nextInt((400 - 0) + 1) + 0;
 			    	Thread.sleep(delay);
 			    	
-		    		socket.send(msgPacket);
+			    	if (!server.getRestoreListener().getReceived())
+			    		socket.send(msgPacket);
+			    	else server.getRestoreListener().setReceived(false);
 		    		
 		    		int a=5-attempts;
 					System.out.println("Server sent MDR UDP: "+a+" "+ m1.getHeader()+" "+m1.getBody());

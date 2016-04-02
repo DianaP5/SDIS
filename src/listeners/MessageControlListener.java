@@ -28,6 +28,7 @@ public class MessageControlListener implements Runnable {
 		public MessageControlListener(String ip,int p,String ip1,int p1,ServerTCP server) throws IOException {
 			this.INET_ADDRESS=ip;
 			this.PORT=p;
+			
 			this.server=server;
 			
 			this.MDR_IP=ip1;
@@ -72,14 +73,16 @@ public class MessageControlListener implements Runnable {
 			String senderId = message.split(" ")[2];
 			String fileId = message.split(" ")[3] ;
 			String chunkNo=null;
-		
+			String name=null;
+			
+			System.out.println("TYPE:  "+msgType);
 			switch (msgType) {
 				case "GETCHUNK":
 					chunkNo = message.split(" ")[4];
 					
 					Message m1=new Message(message, null);
 					
-					MDRestore r1=new MDRestore(m1,MDR_IP, MDR_PORT);
+					MDRestore r1=new MDRestore(m1,MDR_IP, MDR_PORT,server);
 					
 					new Thread(r1).start();
 					
@@ -87,25 +90,24 @@ public class MessageControlListener implements Runnable {
 				case "STORED":
 					chunkNo = message.split(" ")[4];
 					
-					String msg=server.handler.header;
+					//String msg=server.handler.header;
 					
-					String version1=msg.split(" ")[1];
+					/*String version1=msg.split(" ")[1];
 			    	String senderId1=msg.split(" ")[2];
 			    	String fileId1=msg.split(" ")[3];
 			    	String chunkNumber1=msg.split(" ")[4];
-			    	String degree1=msg.split(" ")[5];
+			    	String degree1=msg.split(" ")[5];*/
 			    	
 			    	//STORED <Version> <SenderId> <FileId> <ChunkNo> <CRLF><CRLF>
-					if (msgType.toUpperCase().equals("STORED") && version.equals(version1)&& senderId.equals(senderId1) && 
-							fileId.equals(fileId1) && chunkNo.equals(chunkNumber1)){
-						String name=fileId+" "+chunkNo;
+					//if (msgType.toUpperCase().equals("STORED") && version.equals(version1)&& senderId.equals(senderId1) && 
+						//	fileId.equals(fileId1) && chunkNo.equals(chunkNumber1)){
+						name=fileId+" "+chunkNo;
 						
-						if (server.db.getH1().get(name) != null)
-							server.db.incDegree(name);
-						else server.db.insertValue(name,1);
-						
-						System.out.println("RECEIVED");
-					}
+						if (server.db.getH1().get(name) == null){
+							server.db.insertValue(name,1);
+							System.out.println("RECEIVED");
+						}
+					
 					break;
 				case "DELETE":
 					//String msg=server.handler.header;
@@ -121,8 +123,9 @@ public class MessageControlListener implements Runnable {
 						directory.delete();
 						nChunks--;
 					}
+					break;
 				case "REMOVED":
-					String name=fileId+" "+chunkNo;
+					name=fileId+" "+chunkNo;
 					
 					//REMOVED <Version> <SenderId> <FileId> <ChunkNo> <CRLF><CRLF>
 					if (server.db.getH1().get(name) != null)

@@ -15,7 +15,7 @@ public class ClientTCP {
 		try{
 			System.out.println(InetAddress.getLocalHost().getHostAddress());
 			/*"192.168.1.69"*/
-			Socket socket = new Socket("192.168.1.69", PORT); //ip //InetAddress.getLocalHost().getHostName()
+			Socket socket = new Socket(InetAddress.getLocalHost(), PORT); //ip //InetAddress.getLocalHost().getHostName()
 			
 		    PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
 		    //write to server

@@ -27,9 +27,13 @@ public class MDBackupListener implements Runnable {
     private int attempts=5;
     private ServerTCP server;
     
-	public MDBackupListener(String ip,int p,ServerTCP server) throws IOException{
-    	this.INET_ADDRESS=ip;
-    	this.PORT=p;
+	public MDBackupListener(String ip,int p,String ip1,int p1,ServerTCP server) throws IOException{
+    	this.INET_ADDRESS=ip1;
+    	this.PORT=p1;
+    	
+    	this.MC_IP=ip;
+    	this.MC_PORT=p;
+    	
     	this.server=server;
     	
 		ipAddress = InetAddress.getByName(INET_ADDRESS);
