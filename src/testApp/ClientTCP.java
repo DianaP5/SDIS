@@ -8,7 +8,7 @@ import java.net.UnknownHostException;
 public class ClientTCP {
 
 	String hostName;
-	int PORT=4446;
+	int PORT=4448;
 
 	public ClientTCP (String msg) {
 		

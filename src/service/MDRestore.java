@@ -34,23 +34,22 @@ public class MDRestore implements Runnable {
 	private int repDeg;
 	private int replicated;
  
-	public MDRestore(Message msg, String ip,int p,String ip1,int p1) throws IOException{
+	public MDRestore(Message msg, String ip,int p) throws IOException{
     	ipAddress = InetAddress.getByName(INET_ADDRESS);		
     	socket = new DatagramSocket();
     	this.msg=msg;
-    	this.MC_IP=ip;
-    	this.MC_PORT=p;
-    	this.INET_ADDRESS=ip1;
-    	this.PORT=p1;
+    	
+    	this.INET_ADDRESS=ip;
+    	this.PORT=p;
 	}
 
 	 @Override
 		public void run() {
-	    	String message=msg.getMessage().getBytes().toString();
+	    	String message=msg.getHeader();
 	    	
 	  		try {
 	  			
-		    	while (!done) {
+		    	//while (!done) {
 		    		//GETCHUNK <Version> <SenderId> <FileId> <ChunkNo> <CRLF><CRLF>
 		    		//CHUNK <Version> <SenderId> <FileId> <ChunkNo> <CRLF><CRLF><Body>
 		    		
@@ -61,6 +60,7 @@ public class MDRestore implements Runnable {
 		    		
 		    		String chunk=getChunk(fileId,chunkNo);
 		    		
+		    		System.out.println("TAMANHO     :"+chunk.length());
 		    		String header="CHUNK"+" "+version+" "+senderId+" "+fileId+" "+chunkNo+" ";
 		    		Message m1=new Message(header,chunk);
 		    		
@@ -76,8 +76,8 @@ public class MDRestore implements Runnable {
 		    		
 		    		int a=5-attempts;
 					System.out.println("Server sent MDR UDP: "+a+" "+ m1.getHeader()+" "+m1.getBody());
-					Thread.sleep(1000);
-		    	}
+					//Thread.sleep(1000);
+		    	//}
 			} catch (IOException | InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

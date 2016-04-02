@@ -3,6 +3,7 @@ package service;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.file.Files;
@@ -24,11 +25,9 @@ public class MessageHandler {
 	private String msgType;
 	private String filePath;
 	private String degree;
-	private String version;// = "1.0";
+	private String version= "1.0";
 	private String fileId;
 	private String chunkNo;
-	
-	
 	
 	private static String MC_IP="224.0.0.3";
 	private static Integer MC_PORT=8888;
@@ -39,7 +38,10 @@ public class MessageHandler {
 	private static String MDR_IP="224.0.0.5";
 	private static Integer MDR_PORT=8886;
 	
-	public MessageHandler(String message, String header) throws IOException,
+	public String header;
+	public ServerTCP server;
+	
+	public MessageHandler(String message, String header,ServerTCP server) throws IOException,
 			NoSuchAlgorithmException, InterruptedException {
 
 		this.peerId = message.split(" ")[0].split(":")[1];
@@ -54,31 +56,28 @@ public class MessageHandler {
 		this.MDR_IP = header.split(" ")[3].split(":")[0];
 		this.MDR_PORT = Integer.parseInt(header.split(" ")[3].split(":")[1]);
 		
+		this.server=server;
+		
 		switch (msgType) {
 		case "BACKUP":
 			
 			this.filePath = message.split(" ")[2];
 			this.degree = message.split(" ")[3];
 			
-			putChunkHandler(this.MC_IP,this.MC_PORT,this.MDB_IP,this.MDB_PORT);
+			putChunkHandler(this.MDB_IP,this.MDB_PORT);
 			break;
-		case "GETCHUNK":
+		case "RESTORE":
 			
 			this.fileId = message.split(" ")[2];
-			this.chunkNo = message.split(" ")[3];
+			//this.chunkNo = message.split(" ")[3];
 			
-			getChunkHandler(this.MC_IP,this.MC_PORT,this.MDR_IP,this.MDR_PORT);
-			break;
-		case "STORED":
-			// storedChunkHandler(msg);
-			break;
-		case "CHUNK":
-			System.out.println("1");
+			getChunkHandler();
 			break;
 		case "DELETE":
-			System.out.println("1");
+			this.fileId = message.split(" ")[2];
+			deleteChunkHandler();
 			break;
-		case "REMOVED":
+		case "RECLAIM":
 			System.out.println("1");
 			break;
 		default:
@@ -87,27 +86,60 @@ public class MessageHandler {
 		}
 	}
 
-	private void getChunkHandler(String ip,int p,String ip1, int p1) throws IOException {
+	private void deleteChunkHandler() throws IOException, InterruptedException {
+		
+		int nChunks=getNumberParts(fileId) - 1;
+		
+		while(nChunks >= 0){
+			String header = "DELETE" + " " + version + " " + peerId + " "
+					+ fileId + " ";
+			
+			Message m1 = new Message(header,null);
+			
+			MessageControl mc1=new MessageControl(m1, MC_IP, MC_PORT);
+			System.out.println("NOVA THREAD MC DELETE");
+			
+			new Thread(mc1).start();
+			Thread.sleep(1000);
+			
+			nChunks--;
+		}
+	}
+
+	private void getChunkHandler() throws IOException, InterruptedException {
 		//GETCHUNK <Version> <SenderId> <FileId> <ChunkNo> <CRLF><CRLF>
-		String header = msgType + " " + version + " " + peerId + " "
-				+ fileId + " " + chunkNo + " ";
+		int nChunks=getNumberParts(fileId) - 1;
 		
-		Message m1 = new Message(header,null);
+		//MDRestoreListener r1=new MDRestoreListener(MDR_IP, MDR_PORT);
 		
-		MessageControl mc1=new MessageControl(m1, MC_IP, MC_PORT);
+		//new Thread(r1).start();
 		
-		new Thread(mc1).start();
+		while(nChunks >= 0){
+			String header = "GETCHUNK" + " " + version + " " + peerId + " "
+					+ fileId + " " + nChunks + " ";
+			
+			Message m1 = new Message(header,null);
+			
+			MessageControl mc1=new MessageControl(m1, MC_IP, MC_PORT);
+			System.out.println("NOVA THREAD MC Restore");
+			
+			new Thread(mc1).start();
+			Thread.sleep(1000);
+			
+			nChunks--;
+		}
 		
-		MDRestoreListener r1=new MDRestoreListener(MDR_IP, MDR_PORT);
 		
-		new Thread(r1).start();
+
+		System.out.println("Listener opened");
+		
 		//MDRestore b1 = new MDRestore(m1,ip,p,ip1,p1);
 		
 	//	MessageControl mc1 = new MessageControl(msg);
 		//new Thread(mc1).start();
 	}
 
-	private void putChunkHandler(String ip,int p,String ip1, int p1) throws IOException, InterruptedException,
+	private void putChunkHandler(String ip,int p) throws IOException, InterruptedException,
 			NoSuchAlgorithmException {
 		FileSys f1 = createFile(peerId, filePath, degree);
 		splitFile(f1);
@@ -115,15 +147,18 @@ public class MessageHandler {
 		int numberChunks = f1.getChunksList().size();
 		int i = 0;
 
+		server.db.insertValue(degree+" "+f1.getId(), Integer.parseInt(degree));
+		
 		while (i < numberChunks) {
 			// PUTCHUNK <Version> <SenderId> <FileId> <ChunkNo>
 			// <ReplicationDeg> <CRLF><CRLF><Body>
 			Chunks c1 = f1.getChunksList().get(i);
 			String header = msgType + " " + version + " " + peerId + " "
 					+ f1.getId() + " " + c1.getNumber() + " " + degree + " ";
+			this.header=header;
 			Message m1 = new Message(header, c1.getContent());
 
-			MDBackup b1 = new MDBackup(m1, Integer.parseInt(degree),ip,p,ip1,p1);
+			MDBackup b1 = new MDBackup(m1, Integer.parseInt(degree),ip,p,server);
 			 System.out.println("Nova thread chunk " + c1.getNumber());// +
 			// " "
 			// + c1.getContent().toString());
@@ -133,6 +168,20 @@ public class MessageHandler {
 
 			i++;
 		}
+	}
+	
+	private static int getNumberParts(String fileId) throws IOException {
+		File directory = new File(System.getProperty("user.dir")
+				+ "\\Resources\\Backup");
+
+		String[] matchingFiles = directory.list(new FilenameFilter() {
+			public boolean accept(File dir, String name) {
+				String str = fileId.replace("[", "\\[");
+				return name.matches(str+" \\d+\\.bak");
+			}
+		});
+
+		return matchingFiles.length;
 	}
 
 	private static FileSys createFile(String peerId, String path, String degree)

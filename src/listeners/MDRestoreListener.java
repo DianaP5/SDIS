@@ -19,25 +19,27 @@ public class MDRestoreListener implements Runnable {
     private DatagramPacket msgPacket;
     private InetAddress ipAddress;
     
-	public MDRestoreListener(String ip1,int p1) throws IOException{
-    	this.INET_ADDRESS=ip1;
-    	this.PORT=p1;
+	public MDRestoreListener(String ip,int p) throws IOException{
+    	this.INET_ADDRESS=ip;
+    	this.PORT=p;
     	
 		ipAddress = InetAddress.getByName(INET_ADDRESS);
     	multiSocket = new MulticastSocket(PORT);
+    	System.out.println("opened");
 	}
 
 	 @Override
 		public void run() {
 	    	try {
-				multiSocket.joinGroup(ipAddress);
-
+	    		multiSocket.joinGroup(ipAddress);
 				while(true){
-		        	
 		        	msgPacket = new DatagramPacket(buf, buf.length);
 	                multiSocket.receive(msgPacket);
+	                System.out.println(msgPacket.getLength());
 	                String message = new String(buf, 0, msgPacket.getLength());
-			        
+
+	                System.out.println(message.length());
+	                
 			        //CHUNK <Version> <SenderId> <FileId> <ChunkNo> <CRLF><CRLF><Body>
 	                //String msgType=message.split(" ")[0];
 			    	//String version=message.split(" ")[1];
@@ -45,18 +47,19 @@ public class MDRestoreListener implements Runnable {
 			    	String fileId=message.split(" ")[3];
 			    	String chunkNumber=message.split(" ")[4];
 			    	String body=message.split(Message.CRLF+Message.CRLF)[1];
-			    	
+			    	System.out.println(body.length());
+	                
 			    	//String b=new String(body.getBytes(),0,body.length());
 			    	//String header=msgType+" "+version+" "+senderId+" "+fileId+" "+chunkNumber+" "+body+" ";
 			    	
-			        File f1=new File(System.getProperty("user.dir")+"\\Resources\\Restored\\tmp");
+			        File f1=new File(System.getProperty("user.dir")+"\\Resources\\Restored");
 			        		
-			        File newFile = new File(f1,fileId+" "+chunkNumber+".restored");
+			        File newFile = new File(f1,fileId+" "+chunkNumber+".bak");
 			        
 			        System.out.println("Listener MDR UDP: "+ chunkNumber);
 			        
 			        try (FileOutputStream out = new FileOutputStream(newFile)) {
-			        	out.write(body.getBytes(), 0, body.length());//tmp is chunk size
+			        	out.write(body.getBytes(), 0, body.length());
                 	}
 		        }
 			} catch (IOException e) {

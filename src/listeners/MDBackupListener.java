@@ -10,6 +10,7 @@ import java.util.Random;
 
 import logic.Message;
 import service.MessageControl;
+import service.ServerTCP;
 
 public class MDBackupListener implements Runnable {
 	
@@ -24,17 +25,15 @@ public class MDBackupListener implements Runnable {
     private DatagramPacket msgPacket;
     private InetAddress ipAddress;
     private int attempts=5;
+    private ServerTCP server;
     
-	public MDBackupListener(String ip,int p,String ip1,int p1) throws IOException{
-		this.MC_IP=ip;
-    	this.MC_PORT=p;
-    	this.INET_ADDRESS=ip1;
-    	this.PORT=p1;
+	public MDBackupListener(String ip,int p,ServerTCP server) throws IOException{
+    	this.INET_ADDRESS=ip;
+    	this.PORT=p;
+    	this.server=server;
     	
 		ipAddress = InetAddress.getByName(INET_ADDRESS);
     	multiSocket = new MulticastSocket(PORT);
-    	
-    	
 	}
 
 	 @Override
@@ -70,9 +69,6 @@ public class MDBackupListener implements Runnable {
 			        try (FileOutputStream out = new FileOutputStream(newFile)) {
 			        	out.write(body.getBytes(), 0, body.length());//tmp is chunk size
                 	}
-			        
-			      //  System.out.println(attempts);
-			        
 			        //while(attempts > 100){
 			        	sendRespond(message);
 			        	//attempts--;
@@ -85,14 +81,9 @@ public class MDBackupListener implements Runnable {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-	    	
-
 		}
 
 		private void sendRespond(String msg) throws IOException, InterruptedException {
-			//check if has space
-			//check degree
-			//store
 			String[] splitedMsg=msg.split(" ");
 			
 			String version=splitedMsg[1];

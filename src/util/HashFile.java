@@ -7,7 +7,7 @@ import java.security.NoSuchAlgorithmException;
 public class HashFile{
 	
 	private String file;
-	private byte[] hash;
+	private String hash;
 	
 	public HashFile(String file) throws NoSuchAlgorithmException, UnsupportedEncodingException{
 		this.setFile(file);
@@ -16,15 +16,18 @@ public class HashFile{
 		
 		md.update(file.getBytes("UTF-8")); // "UTF-16"
 		
-		this.setHash(md.digest());
+		byte[] digest=md.digest();
+		
+		//convert the byte to hex format method 1
+        StringBuffer sb = new StringBuffer();
+        for (int i = 0; i < digest.length; i++) {
+         sb.append(Integer.toString((digest[i] & 0xff) + 0x100, 16).substring(1));
+        }
+        hash=sb.toString();
 	}
 	
-	public byte[] getHash() {
+	public String getHash() {
 		return hash;
-	}
-
-	public void setHash(byte[] hash) {
-		this.hash = hash;
 	}
 
 	public String getFile() {
