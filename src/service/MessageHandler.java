@@ -40,6 +40,7 @@ public class MessageHandler {
 	
 	public String header;
 	public ServerTCP server;
+	private int reclaimSize;
 	
 	public MessageHandler(String message, String header,ServerTCP server) throws IOException,
 			NoSuchAlgorithmException, InterruptedException {
@@ -78,8 +79,8 @@ public class MessageHandler {
 			deleteChunkHandler();
 			break;
 		case "RECLAIM":
-			reclaimHandler();
-			System.out.println("RECLAIM");
+			//this.reclaimSize = Integer.parseInt(message.split(" ")[2]);
+			reclaimHandler(Integer.parseInt(message.split(" ")[2]));
 			break;
 		default:
 			System.out.println("Error: Wrong MessageType argument:" + msgType);
@@ -87,8 +88,13 @@ public class MessageHandler {
 		}
 	}
 
-	private int reclaimHandler() {
-		String s1 = null;
+	private void reclaimHandler(int reclaimSize) throws IOException {
+		//String s1 = null;
+		
+		if (reclaimSize <= 0){
+			System.out.println("Error: Invalid size argument:"+reclaimSize);
+			return;
+		}
 		
 		File directory = new File(System.getProperty("user.dir")
 				+ "\\Resources\\Backup");
@@ -97,12 +103,36 @@ public class MessageHandler {
 
 		for (File file : listOfFiles) {
 		    if (file.isFile()) {
-		        System.out.println(file.getName());
+		    	String name=file.getName();
+		    	System.out.println(reclaimSize +" "+ file.length());
+		    	
+		    	if (reclaimSize - file.length() <= 0){
+		    		file.delete();
+		    		//REMOVED <Version> <SenderId> <FileId> <ChunkNo> <CRLF><CRLF>
+					String header="REMOVED"+" "+version+" "+server.PORT+" "+name.split(" ")[0]+" "+name.split(" ")[1]+" ";
+					Message m2=new Message(header,null);
+					
+					MessageControl mc2=new MessageControl(m2,MC_IP,MC_PORT);
+					
+					new Thread(mc2).start();
+					
+		    		return;
+		    	}else if (reclaimSize - file.length() > 0){
+		    		reclaimSize-=file.length();
+		    		
+		    		file.delete();
+		    		
+		    		//REMOVED <Version> <SenderId> <FileId> <ChunkNo> <CRLF><CRLF>
+					String header="REMOVED"+" "+version+" "+server.PORT+" "+name.split(" ")[0]+" "+name.split(" ")[1]+" ";
+					Message m2=new Message(header,null);
+					
+					MessageControl mc2=new MessageControl(m2,MC_IP,MC_PORT);
+					
+					new Thread(mc2).start();
+		    	}
 		    }
 		}
-		
-		 
-		 return 0;
+		    		
 	}
 
 	private void deleteChunkHandler() throws IOException, InterruptedException {

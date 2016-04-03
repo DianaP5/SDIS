@@ -101,6 +101,10 @@ public class MessageControlListener implements Runnable {
 					
 					break;
 				case "STORED":
+					
+					if (Integer.parseInt(senderId) != server.PORT)
+						break;
+					
 					chunkNo = message.split(" ")[4];
 					fileId= message.split(" ")[3] ;
 					
@@ -151,8 +155,11 @@ public class MessageControlListener implements Runnable {
 					name=fileId+" "+chunkNo;
 					
 					//REMOVED <Version> <SenderId> <FileId> <ChunkNo> <CRLF><CRLF>
-					if (server.db.getH1().get(name) != null)
+					if (server.db.getH1().get(name) != null){
 						server.db.decDegree(name);
+						//if ((Integer) server.db.getH1().get(name) == 0)
+							//server.db.removeValue(name);
+					}
 					else break;
 					
 					if ((Integer) server.db.getH1().get(name) < (Integer) server.db.getH1().get(fileId)){
@@ -161,7 +168,6 @@ public class MessageControlListener implements Runnable {
 						
 						String header = "PUTCHUNK" + " " + version + " " + server.PORT + " "
 								+ fileId + " " + chunkNo + " " + degree + " ";
-						
 
 			    		String chunk=getChunk(fileId,Integer.parseInt(chunkNo));
 			    		
@@ -172,7 +178,7 @@ public class MessageControlListener implements Runnable {
 				    	Thread.sleep(delay);
 				    	
 						MDBackup b1 = new MDBackup(m2,degree,this.MDB_IP,this.MDB_PORT,server);
-						 System.out.println("Nova thread chunk " +chunkNo);
+						 System.out.println("Nova thread chunk REMOVE " +chunkNo);
 						new Thread(b1).start();
 					}
 						

@@ -5,10 +5,10 @@ import java.sql.SQLException;
 
 public class Peer {
 	
-	private final static Integer id=4448;
+	private final static Integer id=4449;
 			
 	private final static String MC_IP="224.0.0.6";
-	private final static Integer MC_PORT=8884;
+	private final static Integer MC_PORT=8885;
 	
 	private final static String MDB_IP="224.0.0.4";
 	private final static Integer MDB_PORT=8887;

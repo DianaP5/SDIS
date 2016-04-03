@@ -42,6 +42,7 @@ public class MDBackupListener implements Runnable {
 	 @Override
 		public void run() {
 	    	try {
+	    		System.out.println(ipAddress);
 				multiSocket.joinGroup(ipAddress);
 
 				while(true){
@@ -60,6 +61,7 @@ public class MDBackupListener implements Runnable {
 			    	String degree=message.split(" ")[5];
 			    	String body=message.split(Message.CRLF+Message.CRLF)[1];
 			    	
+			    	System.out.println(senderId+" "+server.PORT);
 			    	if (Integer.parseInt(senderId) == server.PORT)
 			    		break;
 			    	
@@ -76,7 +78,7 @@ public class MDBackupListener implements Runnable {
 			    		server.db.insertValue(fileId+" "+chunkNumber,1);
 			    	}else if (server.db.getH1().get(fileId+" "+chunkNumber) == null){
 			    		server.db.insertValue(fileId+" "+chunkNumber,1);
-			    	}else break;
+			    	}else continue;
 			        
 			        try (FileOutputStream out = new FileOutputStream(newFile)) {
 			        	out.write(body.getBytes(), 0, body.length());//tmp is chunk size

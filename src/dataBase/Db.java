@@ -15,6 +15,10 @@ public class Db {
 		getH1().put(name,degree);
 	}
 	
+	public void removeValue(String name){
+		getH1().remove(name);
+	}
+	
 	public int incDegree(String name){
 		int newValue=(Integer) getH1().get(name) + 1;
 		getH1().replace(name, newValue);
