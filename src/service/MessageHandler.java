@@ -90,8 +90,22 @@ public class MessageHandler {
 
 	private void deleteChunkHandler() throws IOException, InterruptedException {
 		
+		String fileID=null;
+		
+		if (server.files.size() == 0)
+			return;
+		
+		for(int i=0; i < server.files.size();i++){
+			if (server.files.get(i).split(" ")[0].equals(filePath))
+				fileID=server.files.get(i).split(" ")[1];
+		}
+		
+		int nChunks=getNumberParts(fileID);
+		
+		while(nChunks >= 0){
+			
 			String header = "DELETE" + " " + version + " " + peerId + " "
-					+ filePath + " ";
+					+ fileID + " ";
 			
 			Message m1 = new Message(header,null);
 			
@@ -99,6 +113,7 @@ public class MessageHandler {
 			System.out.println("NOVA THREAD MC DELETE");
 			
 			new Thread(mc1).start();
+		}
 	}
 
 	private void getChunkHandler() throws IOException, InterruptedException {
@@ -185,8 +200,7 @@ public class MessageHandler {
 
 		String[] matchingFiles = directory.list(new FilenameFilter() {
 			public boolean accept(File dir, String name) {
-				String str = fileId.replace("[", "\\[");
-				return name.matches(str+" \\d+\\.bak");
+				return name.matches(fileId+" \\d+\\.bak");
 			}
 		});
 

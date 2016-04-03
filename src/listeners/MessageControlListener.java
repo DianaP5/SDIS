@@ -112,18 +112,9 @@ public class MessageControlListener implements Runnable {
 					
 					break;
 				case "DELETE":
-					//String msg=server.handler.header;
-					
 					String fileID=null;
 					String filePath= message.split(" ")[3] ;
-					
-					for(int i=0; i < server.files.size();i++){
-						System.out.println(server.files.get(i).split(" ")[0]+"  "+server.files.get(i).split(" ")[1]);
-						System.out.println(filePath);
-						if (server.files.get(i).split(" ")[0].equals(filePath))
-							fileID=server.files.get(i).split(" ")[1];
-					}
-					
+					 
 					int nChunks=getNumberParts(fileID) - 1;
 					
 					while(nChunks >= 0){
@@ -153,12 +144,11 @@ public class MessageControlListener implements Runnable {
 		
 		private static int getNumberParts(String fileId) throws IOException {
 			File directory = new File(System.getProperty("user.dir")
-					+ "\\Resources\\Restored");
+					+ "\\Resources\\Backup");
 
 			String[] matchingFiles = directory.list(new FilenameFilter() {
 				public boolean accept(File dir, String name) {
-					String str = fileId.replace("[", "\\[");
-					return name.matches(str+" \\d+\\.bak");
+					return name.matches(fileId+" \\d+\\.bak");
 				}
 			});
 
