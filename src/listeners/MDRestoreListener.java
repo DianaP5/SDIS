@@ -7,6 +7,7 @@ import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
 
+import service.ServerTCP;
 import logic.Message;
 
 public class MDRestoreListener implements Runnable {
@@ -19,8 +20,9 @@ public class MDRestoreListener implements Runnable {
     private DatagramPacket msgPacket;
     private InetAddress ipAddress;
     private boolean received;
+    public ServerTCP server;
     
-	public MDRestoreListener(String ip,int p) throws IOException{
+	public MDRestoreListener(String ip,int p,ServerTCP server) throws IOException{
     	this.INET_ADDRESS=ip;
     	this.PORT=p;
     	
@@ -33,27 +35,31 @@ public class MDRestoreListener implements Runnable {
 		public void run() {
 	    	try {
 	    		multiSocket.joinGroup(ipAddress);
+	    		
 				while(true){
 		        	msgPacket = new DatagramPacket(buf, buf.length);
 	                multiSocket.receive(msgPacket);
-	                setReceived(true);
+	                //setReceived(true);
 	                
-	                System.out.println(msgPacket.getLength());
+	                //System.out.println(msgPacket.getLength());
 	                String message = new String(buf, 0, msgPacket.getLength());
 
-	                System.out.println(message.length());
+	                //System.out.println(message.length());
 	                
 			        //CHUNK <Version> <SenderId> <FileId> <ChunkNo> <CRLF><CRLF><Body>
 	                //String msgType=message.split(" ")[0];
 			    	//String version=message.split(" ")[1];
-			    	//String senderId=message.split(" ")[2];
+			    	String senderId=message.split(" ")[2];
 			    	String fileId=message.split(" ")[3];
 			    	String chunkNumber=message.split(" ")[4];
 			    	String body=message.split(Message.CRLF+Message.CRLF)[1];
-			    	System.out.println(body.length());
+			    	//System.out.println(body.length());
 	                
 			    	//String b=new String(body.getBytes(),0,body.length());
 			    	//String header=msgType+" "+version+" "+senderId+" "+fileId+" "+chunkNumber+" "+body+" ";
+			    	
+			    	if (Integer.parseInt(senderId) == server.PORT)
+			    		break;
 			    	
 			        File f1=new File(System.getProperty("user.dir")+"\\Resources\\Restored");
 			        		

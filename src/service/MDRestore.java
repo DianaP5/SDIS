@@ -1,8 +1,10 @@
 package service;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
@@ -62,6 +64,8 @@ public class MDRestore implements Runnable {
 		    		
 		    		String chunk=getChunk(fileId,chunkNo);
 		    		
+		    		if (chunk != null){
+		    		
 		    		System.out.println("TAMANHO     :"+chunk.length());
 		    		String header="CHUNK"+" "+version+" "+senderId+" "+fileId+" "+chunkNo+" ";
 		    		Message m1=new Message(header,chunk);
@@ -74,12 +78,13 @@ public class MDRestore implements Runnable {
 		    		int delay = r1.nextInt((400 - 0) + 1) + 0;
 			    	Thread.sleep(delay);
 			    	
-			    	if (!server.getRestoreListener().getReceived())
+			    	//if (!server.getRestoreListener().getReceived())
 			    		socket.send(msgPacket);
-			    	else server.getRestoreListener().setReceived(false);
+			    	//else server.getRestoreListener().setReceived(false);
 		    		
 		    		int a=5-attempts;
 					System.out.println("Server sent MDR UDP: "+a+" "+ m1.getHeader()+" "+m1.getBody());
+	  		}
 					//Thread.sleep(1000);
 		    	//}
 			} catch (IOException | InterruptedException e) {
@@ -90,6 +95,19 @@ public class MDRestore implements Runnable {
 
 	private String getChunk(String fileId, int chunkNo) throws UnsupportedEncodingException, FileNotFoundException, IOException {
 		String s1 = null;
+		
+		File directory = new File(System.getProperty("user.dir")
+				+ "\\Resources\\Backup");
+
+		String[] matchingFiles = directory.list(new FilenameFilter() {
+			public boolean accept(File dir, String name) {
+				String str = fileId.replace("[", "\\[");
+				return name.matches(str+" \\d+\\.bak");
+			}
+		});
+		
+		if (matchingFiles.length == 0)
+			return null;
 		
 		try (BufferedReader bis = new BufferedReader(
 		           new InputStreamReader(

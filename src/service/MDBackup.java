@@ -13,37 +13,30 @@ public class MDBackup implements Runnable {
 	private static String INET_ADDRESS;// = "224.0.0.4";
     private static int PORT;// = 8887;
     byte[] buf = new byte[256];//(1000 * 64)+256];
-    private static String MC_IP;
-    private static int MC_PORT;
     
     private DatagramSocket socket;
     private DatagramPacket msgPacket;
     private InetAddress ipAddress;
-    private MessageControlListener listener;
     
     private Message msg;
     
 	public Boolean done=false;
 	private int attempts=5;
-	private int repDeg;
 	public ServerTCP server;
 	private int duration;
 	
 	public MDBackup(Message msg, int op2,String ip,int p,ServerTCP server) throws IOException{
-    	ipAddress = InetAddress.getByName(INET_ADDRESS);		
-    	socket = new DatagramSocket();
-    	this.msg=msg;
-    	this.repDeg=op2;
     	this.INET_ADDRESS=ip;
     	this.PORT=p;
+    	
+		ipAddress = InetAddress.getByName(INET_ADDRESS);		
+    	socket = new DatagramSocket();
+    	this.msg=msg;
     	this.server=server;
     	this.duration=1000;
 	}
 
 	private boolean checkResponse(String name,String chunkNo) {
-		
-		System.out.println(server.db.getH1().get(name+" "+chunkNo));
-		System.out.println(server.db.getH1().get(name));
 		
 		if (server.db.getH1().get(name+" "+chunkNo) != null)
 			if ((Integer) server.db.getH1().get(name+" "+chunkNo) == server.db.getH1().get(name))

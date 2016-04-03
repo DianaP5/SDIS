@@ -11,6 +11,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 
 import listeners.MDRestoreListener;
 import logic.Chunks;
@@ -62,13 +63,14 @@ public class MessageHandler {
 		case "BACKUP":
 			
 			this.filePath = message.split(" ")[2];
+			System.out.println("ISTO: "+filePath);
 			this.degree = message.split(" ")[3];
 			
 			putChunkHandler();
 			break;
 		case "RESTORE":
 			
-			this.fileId = message.split(" ")[2];
+			this.filePath = message.split(" ")[2];
 			//this.chunkNo = message.split(" ")[3];
 			
 			getChunkHandler();
@@ -108,15 +110,31 @@ public class MessageHandler {
 
 	private void getChunkHandler() throws IOException, InterruptedException {
 		//GETCHUNK <Version> <SenderId> <FileId> <ChunkNo> <CRLF><CRLF>
-		int nChunks=getNumberParts(fileId) - 1;
+		
+		File f1 = new File(filePath);
+		long actualFileSize = f1.length();
+
+		double times = actualFileSize % 10;
+		int nChunks = (int) Math.floor(times);
+		nChunks--;
 		
 		//MDRestoreListener r1=new MDRestoreListener(MDR_IP, MDR_PORT);
 		
 		//new Thread(r1).start();
+		String fileID=null;
+		
+		System.out.println(server.files.size());
+		
+		for(int i=0; i < server.files.size();i++){
+			System.out.println(server.files.get(i).split(" ")[0]+"  "+server.files.get(i).split(" ")[1]);
+			System.out.println(filePath);
+			if (server.files.get(i).split(" ")[0].equals(filePath))
+				fileID=server.files.get(i).split(" ")[1];
+		}
 		
 		while(nChunks >= 0){
 			String header = "GETCHUNK" + " " + version + " " + peerId + " "
-					+ fileId + " " + nChunks + " ";
+					+ fileID + " " + nChunks + " ";
 			
 			Message m1 = new Message(header,null);
 			
@@ -128,11 +146,6 @@ public class MessageHandler {
 			
 			nChunks--;
 		}
-		
-		
-
-		System.out.println("Listener opened");
-		
 		//MDRestore b1 = new MDRestore(m1,ip,p,ip1,p1);
 		
 	//	MessageControl mc1 = new MessageControl(msg);
@@ -142,8 +155,12 @@ public class MessageHandler {
 	private void putChunkHandler() throws IOException, InterruptedException,
 			NoSuchAlgorithmException {
 		FileSys f1 = createFile(peerId, filePath, degree);
+		
 		splitFile(f1);
-
+		System.out.println(filePath+" "+f1.getId());
+		
+		server.files.add(filePath+" "+f1.getId());
+		
 		int numberChunks = f1.getChunksList().size();
 		int i = 0;
 		
@@ -153,9 +170,10 @@ public class MessageHandler {
 			// PUTCHUNK <Version> <SenderId> <FileId> <ChunkNo>
 			// <ReplicationDeg> <CRLF><CRLF><Body>
 			Chunks c1 = f1.getChunksList().get(i);
-			String header = msgType + " " + version + " " + peerId + " "
+			String header = "PUTCHUNK" + " " + version + " " + peerId + " "
 					+ f1.getId() + " " + c1.getNumber() + " " + degree + " ";
-			this.header=header;
+			//this.header=header;
+			
 			Message m1 = new Message(header, c1.getContent());
 
 			MDBackup b1 = new MDBackup(m1, Integer.parseInt(degree),this.MDB_IP,this.MDB_PORT,server);
@@ -164,7 +182,7 @@ public class MessageHandler {
 			// + c1.getContent().toString());
 			new Thread(b1).start();
 			
-			Thread.sleep(1000);
+			//Thread.sleep(1000);
 
 			i++;
 		}

@@ -36,7 +36,6 @@ public class MessageControlListener implements Runnable {
 	    	
 	    	ipAddress = InetAddress.getByName(INET_ADDRESS);
 	    	multiSocket = new MulticastSocket(PORT);
-	    	System.out.println("CREATED CRESTDE");
 	    }
 	
 	    @Override
@@ -47,10 +46,8 @@ public class MessageControlListener implements Runnable {
 		        setMsgPacket(new DatagramPacket(buf, buf.length));
 		        
 	    		while(true){
-	    			System.out.println("READY");
 	    			
 			        multiSocket.receive(msgPacket);
-			        System.out.println("AFTER AFETER");
 	    			
 			        //this.setReceived(true);
 			        
@@ -79,7 +76,6 @@ public class MessageControlListener implements Runnable {
 			String chunkNo=null;
 			String name=null;
 			
-			System.out.println("TYPE:  "+msgType);
 			switch (msgType) {
 				case "GETCHUNK":
 					chunkNo = message.split(" ")[4];
