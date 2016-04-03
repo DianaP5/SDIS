@@ -112,14 +112,15 @@ public class MessageControlListener implements Runnable {
 					
 					break;
 				case "DELETE":
-					String fileID=null;
-					String filePath= message.split(" ")[3] ;
+					String fileID= message.split(" ")[3] ;
 					 
 					int nChunks=getNumberParts(fileID) - 1;
 					
+					System.out.println(nChunks);
+					
 					while(nChunks >= 0){
 						File directory = new File(System.getProperty("user.dir")
-								+ "\\Resources\\Backup\\"+fileId+" "+nChunks+".bak");
+								+ "\\Resources\\Backup\\"+fileID+" "+nChunks+".bak");
 						
 						directory.delete();
 						nChunks--;

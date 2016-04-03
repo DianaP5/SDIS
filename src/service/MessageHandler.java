@@ -100,9 +100,10 @@ public class MessageHandler {
 				fileID=server.files.get(i).split(" ")[1];
 		}
 		
-		int nChunks=getNumberParts(fileID);
+		//int tries=5;
+		//System.out.println("ISTO: "+fileID);
 		
-		while(nChunks >= 0){
+		//while(tries > 0){
 			
 			String header = "DELETE" + " " + version + " " + peerId + " "
 					+ fileID + " ";
@@ -113,7 +114,9 @@ public class MessageHandler {
 			System.out.println("NOVA THREAD MC DELETE");
 			
 			new Thread(mc1).start();
-		}
+			
+			//tries--;
+		//}
 	}
 
 	private void getChunkHandler() throws IOException, InterruptedException {
