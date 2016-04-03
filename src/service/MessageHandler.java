@@ -78,12 +78,31 @@ public class MessageHandler {
 			deleteChunkHandler();
 			break;
 		case "RECLAIM":
-			System.out.println("1");
+			reclaimHandler();
+			System.out.println("RECLAIM");
 			break;
 		default:
 			System.out.println("Error: Wrong MessageType argument:" + msgType);
 			break;
 		}
+	}
+
+	private int reclaimHandler() {
+		String s1 = null;
+		
+		File directory = new File(System.getProperty("user.dir")
+				+ "\\Resources\\Backup");
+		
+		File[] listOfFiles = directory.listFiles();
+
+		for (File file : listOfFiles) {
+		    if (file.isFile()) {
+		        System.out.println(file.getName());
+		    }
+		}
+		
+		 
+		 return 0;
 	}
 
 	private void deleteChunkHandler() throws IOException, InterruptedException {

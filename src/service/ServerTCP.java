@@ -98,7 +98,7 @@ public class ServerTCP implements Runnable {
 
 		setBackupListener(new MDBackupListener(MC_IP,MC_PORT,MDB_IP, MDB_PORT,this)); 
 		setRestoreListener(new MDRestoreListener(MDR_IP, MDR_PORT,this));
-		setMessageControlListener(new MessageControlListener(MC_IP, MC_PORT,MDR_IP,MDR_PORT,this)); 
+		setMessageControlListener(new MessageControlListener(MC_IP, MC_PORT,MDR_IP,MDR_PORT,MDB_IP,MDB_PORT,this)); 
 		
 		new Thread(getBackupListener()).start();
 		new Thread(getRestoreListener()).start();

@@ -1,14 +1,22 @@
 package listeners;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
+import java.util.Random;
 
 import logic.Message;
+import service.MDBackup;
 import service.MDRestore;
+import service.MessageControl;
 import service.ServerTCP;
 
 public class MessageControlListener implements Runnable {
@@ -17,6 +25,8 @@ public class MessageControlListener implements Runnable {
 	    private static int PORT; //= 8888;
 	    private static String MDR_IP; // = "224.0.0.3";
 	    private static int MDR_PORT;
+	    private static String MDB_IP; // = "224.0.0.3";
+	    private static int MDB_PORT;
 	    public byte[] buf = new byte[256];
 	    
 	    private MulticastSocket multiSocket;
@@ -25,7 +35,7 @@ public class MessageControlListener implements Runnable {
 	    private boolean received=false;
 	    private ServerTCP server;
 	    
-		public MessageControlListener(String ip,int p,String ip1,int p1,ServerTCP server) throws IOException {
+		public MessageControlListener(String ip,int p,String ip1,int p1,String ip2,int p2,ServerTCP server) throws IOException {
 			this.INET_ADDRESS=ip;
 			this.PORT=p;
 			
@@ -33,6 +43,9 @@ public class MessageControlListener implements Runnable {
 			
 			this.MDR_IP=ip1;
 	    	this.MDR_PORT=p1;
+	    	
+	    	this.MDB_IP=ip2;
+	    	this.MDB_PORT=p2;
 	    	
 	    	ipAddress = InetAddress.getByName(INET_ADDRESS);
 	    	multiSocket = new MulticastSocket(PORT);
@@ -60,14 +73,13 @@ public class MessageControlListener implements Runnable {
 			        handleMessage(message);
 	    		}
 	    		//multiSocket.close();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
+			} catch (IOException | InterruptedException e) {
 				e.printStackTrace();
 			}
 	    	
 		}
 
-		private void handleMessage(String message) throws IOException {
+		private void handleMessage(String message) throws IOException, InterruptedException {
 			//GETCHUNK <Version> <SenderId> <FileId> <ChunkNo> <CRLF><CRLF>
 			String msgType = message.split(" ")[0];
 			String version = message.split(" ")[1];
@@ -108,7 +120,7 @@ public class MessageControlListener implements Runnable {
 						if (server.db.getH1().get(name) == null){
 							server.db.insertValue(name,1);
 							System.out.println("RECEIVED");
-						}
+						}else server.db.incDegree(name);
 					
 					break;
 				case "DELETE":
@@ -123,9 +135,17 @@ public class MessageControlListener implements Runnable {
 								+ "\\Resources\\Backup\\"+fileID+" "+nChunks+".bak");
 						
 						directory.delete();
+
+						//REMOVED <Version> <SenderId> <FileId> <ChunkNo> <CRLF><CRLF>
+						String header="REMOVED"+" "+version+" "+senderId+" "+fileID+" "+nChunks+" ";
+						Message m2=new Message(header,null);
+						
+						MessageControl mc2=new MessageControl(m2,INET_ADDRESS,PORT);
+						
+						new Thread(mc2).start();
+						
 						nChunks--;
 					}
-					
 					break;
 				case "REMOVED":
 					name=fileId+" "+chunkNo;
@@ -133,8 +153,29 @@ public class MessageControlListener implements Runnable {
 					//REMOVED <Version> <SenderId> <FileId> <ChunkNo> <CRLF><CRLF>
 					if (server.db.getH1().get(name) != null)
 						server.db.decDegree(name);
+					else break;
 					
-					if ((Integer) server.db.getH1().get(name) < (Integer) server.db.getH1().get(fileId))
+					if ((Integer) server.db.getH1().get(name) < (Integer) server.db.getH1().get(fileId)){
+						
+						int degree=(Integer) server.db.getH1().get(fileId)- (Integer) server.db.getH1().get(name);
+						
+						String header = "PUTCHUNK" + " " + version + " " + server.PORT + " "
+								+ fileId + " " + chunkNo + " " + degree + " ";
+						
+
+			    		String chunk=getChunk(fileId,Integer.parseInt(chunkNo));
+			    		
+						Message m2 = new Message(header,chunk);
+						
+						Random r2=new Random();
+			    		int delay = r2.nextInt((400 - 0) + 1) + 0;
+				    	Thread.sleep(delay);
+				    	
+						MDBackup b1 = new MDBackup(m2,degree,this.MDB_IP,this.MDB_PORT,server);
+						 System.out.println("Nova thread chunk " +chunkNo);
+						new Thread(b1).start();
+					}
+						
 						
 					break;
 			default:
@@ -143,6 +184,35 @@ public class MessageControlListener implements Runnable {
 			
 		}
 		
+		private String getChunk(String fileId, int chunkNo) throws UnsupportedEncodingException, FileNotFoundException, IOException {
+			String s1 = null;
+			
+			File directory = new File(System.getProperty("user.dir")
+					+ "\\Resources\\Backup");
+
+			String[] matchingFiles = directory.list(new FilenameFilter() {
+				public boolean accept(File dir, String name) {
+					return name.matches(fileId+" \\d+\\.bak");
+				}
+			});
+			
+			if (matchingFiles.length == 0)
+				return null;
+			
+			try (BufferedReader bis = new BufferedReader(
+			           new InputStreamReader(
+			                      new FileInputStream(System.getProperty("user.dir")
+			                    			+ "\\Resources\\Backup\\" + fileId+" "+ chunkNo + ".bak"), "UTF-8"))) {
+	 			int tmp;
+	 			char[] buffer=new char[256]; //1000*64;
+	 			
+	 			while ((tmp = bis.read(buffer)) > 0 ) {
+	 				s1 = new String(buffer, 0, buffer.length);
+	 		}
+			return s1;
+		}
+		}
+			
 		private static int getNumberParts(String fileId) throws IOException {
 			File directory = new File(System.getProperty("user.dir")
 					+ "\\Resources\\Backup");

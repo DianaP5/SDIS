@@ -96,8 +96,7 @@ public class MDRestore implements Runnable {
 
 		String[] matchingFiles = directory.list(new FilenameFilter() {
 			public boolean accept(File dir, String name) {
-				String str = fileId.replace("[", "\\[");
-				return name.matches(str+" \\d+\\.bak");
+				return name.matches(fileId+" \\d+\\.bak");
 			}
 		});
 		

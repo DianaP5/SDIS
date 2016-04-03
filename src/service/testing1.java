@@ -3,20 +3,14 @@ package service;
 import java.io.IOException;
 import java.sql.SQLException;
 
-import dataBase.Db;
-import listeners.MDBackupListener;
-import listeners.MDRestoreListener;
-import listeners.MessageControlListener;
-import logic.Message;
-
 public class testing1 {
 
 		public static void main(String[] args) throws IOException, SQLException{
 			
 			
-			MessageControlListener h1=new MessageControlListener("224.0.0.6", 8885, "224.0.0.2",8884,null);
+			//MessageControlListener h1=new MessageControlListener("224.0.0.6", 8885, "224.0.0.2",8884,null);
 			
-			new Thread(h1).start();
+			//new Thread(h1).start();
 			/*d.createTable();
 			d.insertValue(1, "ola", 2);
 			System.out.print(d.selectDegree("ola","1"));*/

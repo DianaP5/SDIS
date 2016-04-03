@@ -37,8 +37,10 @@ public class MDBackup implements Runnable {
 
 	private boolean checkResponse(String name,String chunkNo) {
 		
+		System.out.println((Integer) server.db.getH1().get(name+" "+chunkNo)+" "+server.db.getH1().get(name));
+		
 		if (server.db.getH1().get(name+" "+chunkNo) != null)
-			if ((Integer) server.db.getH1().get(name+" "+chunkNo) == server.db.getH1().get(name))
+			if ((Integer) server.db.getH1().get(name+" "+chunkNo) >= (Integer) server.db.getH1().get(name))
 				return true;
 		
 		return false;

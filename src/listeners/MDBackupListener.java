@@ -50,24 +50,33 @@ public class MDBackupListener implements Runnable {
 	                multiSocket.receive(msgPacket);
 	                String message = new String(buf, 0, msgPacket.getLength());
 			        
+	                
 			        ////PUTCHUNK <Version> <SenderId> <FileId> <ChunkNo> <ReplicationDeg> <CRLF><CRLF><Body>
 	                //String msgType=message.split(" ")[0];
 			    	//String version=message.split(" ")[1];
-			    	//String senderId=message.split(" ")[2];
+			    	String senderId=message.split(" ")[2];
 			    	String fileId=message.split(" ")[3];
 			    	String chunkNumber=message.split(" ")[4];
 			    	String degree=message.split(" ")[5];
 			    	String body=message.split(Message.CRLF+Message.CRLF)[1];
-
+			    	
+			    	if (Integer.parseInt(senderId) == server.PORT)
+			    		break;
+			    	
 			    	File f1=new File(System.getProperty("user.dir")+"\\Resources\\Backup");
 			        		
 			        File newFile = new File(f1,fileId+" "+chunkNumber+".bak");
 			        
 			        System.out.println("Listener MDB UDP: "+ chunkNumber);
 			        
-			    	if (server.db.getH1().get(fileId) != null)
-			    		break;
-			    	else server.db.insertValue(fileId+" "+chunkNumber, Integer.parseInt(degree));
+			        
+			        
+			    	if (server.db.getH1().get(fileId) == null){
+			    		server.db.insertValue(fileId,Integer.parseInt(degree));
+			    		server.db.insertValue(fileId+" "+chunkNumber,1);
+			    	}else if (server.db.getH1().get(fileId+" "+chunkNumber) == null){
+			    		server.db.insertValue(fileId+" "+chunkNumber,1);
+			    	}else break;
 			        
 			        try (FileOutputStream out = new FileOutputStream(newFile)) {
 			        	out.write(body.getBytes(), 0, body.length());//tmp is chunk size
