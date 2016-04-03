@@ -24,7 +24,6 @@ public class MDBackupListener implements Runnable {
     private MulticastSocket multiSocket;
     private DatagramPacket msgPacket;
     private InetAddress ipAddress;
-    private int attempts=5;
     private ServerTCP server;
     
 	public MDBackupListener(String ip,int p,String ip1,int p1,ServerTCP server) throws IOException{
@@ -52,20 +51,15 @@ public class MDBackupListener implements Runnable {
 	                String message = new String(buf, 0, msgPacket.getLength());
 			        
 			        ////PUTCHUNK <Version> <SenderId> <FileId> <ChunkNo> <ReplicationDeg> <CRLF><CRLF><Body>
-	                String msgType=message.split(" ")[0];
-			    	String version=message.split(" ")[1];
-			    	String senderId=message.split(" ")[2];
+	                //String msgType=message.split(" ")[0];
+			    	//String version=message.split(" ")[1];
+			    	//String senderId=message.split(" ")[2];
 			    	String fileId=message.split(" ")[3];
 			    	String chunkNumber=message.split(" ")[4];
 			    	String degree=message.split(" ")[5];
 			    	String body=message.split(Message.CRLF+Message.CRLF)[1];
-			    	//System.out.println("LENGTH: "+body.length());
-			    	
-			    	//String b=new String(body.getBytes(),0,body.length());
-			    	//String header=msgType+" "+version+" "+senderId+" "+fileId+" "+chunkNumber+" "+body+" ";
-			    	
-			        File f1=new File(System.getProperty("user.dir")+"\\Resources\\Backup");
-			        //Path src=Paths.get(System.getProperty("user.dir")+"\\Files");
+
+			    	File f1=new File(System.getProperty("user.dir")+"\\Resources\\Backup");
 			        		
 			        File newFile = new File(f1,fileId+" "+chunkNumber+".bak");
 			        
@@ -78,16 +72,10 @@ public class MDBackupListener implements Runnable {
 			        try (FileOutputStream out = new FileOutputStream(newFile)) {
 			        	out.write(body.getBytes(), 0, body.length());//tmp is chunk size
                 	}
-			        //while(attempts > 100){
-			        	sendRespond(message);
-			        	//attempts--;
-			        	//Thread.sleep(100);
-			       // }
 			        
-			     //   attempts=0;
+			        sendRespond(message);
 		        }
 			} catch (IOException | InterruptedException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
@@ -101,7 +89,7 @@ public class MDBackupListener implements Runnable {
 	    	String chunkNo=splitedMsg[4];
 	    	
 	    	//STORED <Version> <SenderId> <FileId> <ChunkNo> <CRLF><CRLF>
-	    	String header="STORED"+" "+version+" "+senderId+" "+fileId+" "+chunkNo+" ";//+Message.CRLF+Message.CRLF;
+	    	String header="STORED"+" "+version+" "+senderId+" "+fileId+" "+chunkNo+" ";
 	    	Message m1=new Message(header,null);
 	    	
 	    	Random r1=new Random();

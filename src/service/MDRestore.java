@@ -21,21 +21,17 @@ public class MDRestore implements Runnable {
 	private static String INET_ADDRESS;// = "224.0.0.4";
     private static int PORT;// = 8887;
     byte[] buf = new byte[256];//(1000 * 64)+256];
-    private static String MC_IP;
-    private static int MC_PORT;
+    //private static String MC_IP;
+    //private static int MC_PORT;
     
     private DatagramSocket socket;
     private DatagramPacket msgPacket;
     private InetAddress ipAddress;
-    private MessageControlListener listener;
     
     private Message msg;
     
 	public Boolean done=false;
 	private int attempts=5;
-	private int repDeg;
-	private int replicated;
-	private ServerTCP server;
  
 	public MDRestore(Message msg, String ip,int p,ServerTCP server) throws IOException{
 
@@ -44,9 +40,7 @@ public class MDRestore implements Runnable {
     	
 		ipAddress = InetAddress.getByName(INET_ADDRESS);		
     	socket = new DatagramSocket();
-    	this.msg=msg;
-    	this.server=server;
-    	
+    	this.msg=msg;    	
 	}
 
 	 @Override
@@ -90,7 +84,6 @@ public class MDRestore implements Runnable {
 					//Thread.sleep(1000);
 		    	//}
 			} catch (IOException | InterruptedException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}

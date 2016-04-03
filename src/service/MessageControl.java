@@ -42,7 +42,6 @@ public class MessageControl implements Runnable{
 	        
 			//Thread.sleep(1000);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}   

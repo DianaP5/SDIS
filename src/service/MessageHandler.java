@@ -27,7 +27,6 @@ public class MessageHandler {
 	private String filePath;
 	private String degree;
 	private String version= "1.0";
-	//private String fileId;
 	private String chunkNo;
 	
 	private static String MC_IP;//="224.0.0.3";
@@ -72,7 +71,6 @@ public class MessageHandler {
 			
 			this.filePath = message.split(" ")[2];
 			//this.chunkNo = message.split(" ")[3];
-			
 			getChunkHandler();
 			break;
 		case "DELETE":
@@ -129,9 +127,6 @@ public class MessageHandler {
 		int nChunks = (int) Math.floor(times);
 		nChunks--;
 		
-		//MDRestoreListener r1=new MDRestoreListener(MDR_IP, MDR_PORT);
-		
-		//new Thread(r1).start();
 		String fileID=null;
 		
 		for(int i=0; i < server.files.size();i++){
@@ -155,10 +150,6 @@ public class MessageHandler {
 			
 			nChunks--;
 		}
-		//MDRestore b1 = new MDRestore(m1,ip,p,ip1,p1);
-		
-	//	MessageControl mc1 = new MessageControl(msg);
-		//new Thread(mc1).start();
 	}
 
 	private void putChunkHandler() throws IOException, InterruptedException,
@@ -181,14 +172,11 @@ public class MessageHandler {
 			Chunks c1 = f1.getChunksList().get(i);
 			String header = "PUTCHUNK" + " " + version + " " + peerId + " "
 					+ f1.getId() + " " + c1.getNumber() + " " + degree + " ";
-			//this.header=header;
 			
 			Message m1 = new Message(header, c1.getContent());
 
 			MDBackup b1 = new MDBackup(m1, Integer.parseInt(degree),this.MDB_IP,this.MDB_PORT,server);
-			 System.out.println("Nova thread chunk " + c1.getNumber());// +
-			// " "
-			// + c1.getContent().toString());
+			 System.out.println("Nova thread chunk " + c1.getNumber());
 			new Thread(b1).start();
 			
 			//Thread.sleep(1000);

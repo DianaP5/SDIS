@@ -5,7 +5,6 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 
-import listeners.MessageControlListener;
 import logic.Message;
 
 public class MDBackup implements Runnable {
@@ -70,7 +69,6 @@ public class MDBackup implements Runnable {
 		    	}
 		    	
 			} catch (IOException | InterruptedException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}

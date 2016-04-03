@@ -40,13 +40,9 @@ public class MDRestoreListener implements Runnable {
 				while(true){
 		        	msgPacket = new DatagramPacket(buf, buf.length);
 	                multiSocket.receive(msgPacket);
-	                //setReceived(true);
-	                
-	                //System.out.println(msgPacket.getLength());
+
 	                String message = new String(buf, 0, msgPacket.getLength());
 
-	                //System.out.println(message.length());
-	                
 			        //CHUNK <Version> <SenderId> <FileId> <ChunkNo> <CRLF><CRLF><Body>
 	                //String msgType=message.split(" ")[0];
 			    	//String version=message.split(" ")[1];
@@ -54,10 +50,6 @@ public class MDRestoreListener implements Runnable {
 			    	String fileId=message.split(" ")[3];
 			    	String chunkNumber=message.split(" ")[4];
 			    	String body=message.split(Message.CRLF+Message.CRLF)[1];
-			    	//System.out.println(body.length());
-	                
-			    	//String b=new String(body.getBytes(),0,body.length());
-			    	//String header=msgType+" "+version+" "+senderId+" "+fileId+" "+chunkNumber+" "+body+" ";
 			    	
 			    	System.out.println(Integer.parseInt(senderId)+" "+server.PORT);
 			    	
@@ -75,7 +67,6 @@ public class MDRestoreListener implements Runnable {
                 	}
 		        }
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 	    	
