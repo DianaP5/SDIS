@@ -62,8 +62,6 @@ public class MessageControlListener implements Runnable {
 	    			
 			        multiSocket.receive(msgPacket);
 	    			
-			        //this.setReceived(true);
-			        
 			        String message = new String(buf, 0, msgPacket.getLength());
 			        
 			        //Thread.sleep(1000);
@@ -210,7 +208,7 @@ public class MessageControlListener implements Runnable {
 			                      new FileInputStream(System.getProperty("user.dir")
 			                    			+ "\\Resources\\Backup\\" + fileId+" "+ chunkNo + ".bak"), "UTF-8"))) {
 	 			int tmp;
-	 			char[] buffer=new char[256]; //1000*64;
+	 			char[] buffer=new char[1000*64];
 	 			
 	 			while ((tmp = bis.read(buffer)) > 0 ) {
 	 				s1 = new String(buffer, 0, buffer.length);

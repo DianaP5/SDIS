@@ -5,7 +5,7 @@ import java.util.HashMap;
 
 public class Db {
 	
-	private HashMap h1;
+	private HashMap<String,Integer> h1;
 	
 	public Db() throws SQLException{
 		setH1(new HashMap<String,Integer>());
@@ -33,11 +33,11 @@ public class Db {
 		return newValue;
 	}
 	
-	public HashMap getH1() {
+	public HashMap<String,Integer> getH1() {
 		return h1;
 	}
 
-	public void setH1(HashMap h1) {
+	public void setH1(HashMap<String,Integer> h1) {
 		this.h1 = h1;
 	}
 	

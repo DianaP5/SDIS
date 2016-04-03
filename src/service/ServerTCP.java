@@ -38,7 +38,6 @@ public class ServerTCP implements Runnable {
 	public Db db;
 	ServerSocket serverSocket;
 	public ArrayList<String> files;
-	//public int degree=0;
 	
 	public ServerTCP(String header) throws IOException, SQLException {
 		
@@ -74,19 +73,13 @@ public class ServerTCP implements Runnable {
 			
 			clientSocket = serverSocket.accept();
 			
-			//while(true){
-				BufferedReader in = new BufferedReader(new InputStreamReader(
+			BufferedReader in = new BufferedReader(new InputStreamReader(
 						clientSocket.getInputStream()));
 				
-				String message = in.readLine();
+			String message = in.readLine();
 				
-				//this.degree=Integer.parseInt(message.split(" ")[3]);
-				
-				//id=Integer.parseInt(message.split(" ")[0].split(":")[1]);
-				
-				MessageHandler h1=new MessageHandler(message,header,this);
-	
-				
+			@SuppressWarnings("unused")
+			MessageHandler h1=new MessageHandler(message,header,this);
 			}
 			//clientSocket.close();
 		} catch (IOException | NoSuchAlgorithmException | InterruptedException e) {

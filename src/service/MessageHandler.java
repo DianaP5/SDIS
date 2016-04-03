@@ -11,9 +11,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
 
-import listeners.MDRestoreListener;
 import logic.Chunks;
 import logic.FileSys;
 import logic.Message;
@@ -89,7 +87,6 @@ public class MessageHandler {
 	}
 
 	private void reclaimHandler(int reclaimSize) throws IOException {
-		//String s1 = null;
 		
 		if (reclaimSize <= 0){
 			System.out.println("Error: Invalid size argument:"+reclaimSize);
@@ -104,7 +101,6 @@ public class MessageHandler {
 		for (File file : listOfFiles) {
 		    if (file.isFile()) {
 		    	String name=file.getName();
-		    	System.out.println(reclaimSize +" "+ file.length());
 		    	
 		    	if (reclaimSize - file.length() <= 0){
 		    		file.delete();
@@ -132,7 +128,6 @@ public class MessageHandler {
 		    	}
 		    }
 		}
-		    		
 	}
 
 	private void deleteChunkHandler() throws IOException, InterruptedException {
@@ -147,11 +142,6 @@ public class MessageHandler {
 				fileID=server.files.get(i).split(" ")[1];
 		}
 		
-		//int tries=5;
-		//System.out.println("ISTO: "+fileID);
-		
-		//while(tries > 0){
-			
 			String header = "DELETE" + " " + version + " " + peerId + " "
 					+ fileID + " ";
 			
@@ -161,9 +151,6 @@ public class MessageHandler {
 			System.out.println("NOVA THREAD MC DELETE");
 			
 			new Thread(mc1).start();
-			
-			//tries--;
-		//}
 	}
 
 	private void getChunkHandler() throws IOException, InterruptedException {
@@ -172,15 +159,13 @@ public class MessageHandler {
 		File f1 = new File(filePath);
 		long actualFileSize = f1.length();
 
-		double times = actualFileSize % 10;
+		double times = actualFileSize % (1000 * 64);
 		int nChunks = (int) Math.floor(times);
 		nChunks--;
 		
 		String fileID=null;
 		
 		for(int i=0; i < server.files.size();i++){
-			System.out.println(server.files.get(i).split(" ")[0]+"  "+server.files.get(i).split(" ")[1]);
-			System.out.println(filePath);
 			if (server.files.get(i).split(" ")[0].equals(filePath))
 				fileID=server.files.get(i).split(" ")[1];
 		}
@@ -234,6 +219,7 @@ public class MessageHandler {
 		}
 	}
 	
+	@SuppressWarnings("unused")
 	private static int getNumberParts(String fileId) throws IOException {
 		File directory = new File(System.getProperty("user.dir")
 				+ "\\Resources\\Backup");
@@ -270,7 +256,7 @@ public class MessageHandler {
 	
 	public void splitFile(FileSys file) throws IOException {
 		int counter = 0;
-		int eachFileSize = 10;//1000 * 64; // 64Kb
+		int eachFileSize = 1000 * 64; // 64Kb
 		        
 		try (BufferedReader bis = new BufferedReader(
 		           new InputStreamReader(
@@ -279,7 +265,6 @@ public class MessageHandler {
 			int tmp;
 			File f1 = new File(filePath);
 			long actualFileSize = f1.length();
-			//System.out.println(actualFileSize);
 			
 			int nChunks = 0;
 			boolean multiple=false;
@@ -294,13 +279,9 @@ public class MessageHandler {
 				nChunks = (int) Math.floor(times);
 			}
 
-			//byte[] buffer = new byte[eachFileSize];
-	        
 			char[] buffer=new char[eachFileSize];
 			
 		while ((tmp = bis.read(buffer)) > 0 ) {
-				// File newFile = new File(f1.getParent(), "new" +
-				// "."+counter+".txt");
 				String s1 = new String(buffer, 0, buffer.length);
 
 				if (nChunks > 0 && (counter + 1 >= nChunks)) {
@@ -311,18 +292,11 @@ public class MessageHandler {
 				Chunks c1 = new Chunks(file.getId(), counter, s1);
 				file.addChunk(c1);
 				counter++;
-				//System.out.println("File part " + counter + ": " + s1);
-				/*
-				 * try (FileOutputStream out = new FileOutputStream(newFile)) {
-				 * out.write(s1.getBytes(), 0,10);//tmp is chunk size }
-				 */
 			}
 		if (multiple){
 			Chunks c1 = new Chunks(file.getId(), counter," ");
 			file.addChunk(c1);
 		}
-		
 		}
 	}
-
 }

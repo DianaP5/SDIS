@@ -1,6 +1,7 @@
 package logic;
 
 public class Chunks {
+	@SuppressWarnings("unused")
 	private String fileId;
 	private int number;
 	private String content;

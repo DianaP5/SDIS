@@ -14,7 +14,7 @@ public class MDRestoreListener implements Runnable {
 	
 	private String INET_ADDRESS; //= "224.0.0.4";
     private int PORT; // = 8887;
-    byte[] buf = new byte[256];//(1000 * 64)+256];
+    byte[] buf = new byte[(1000 * 64)+256];
    
     private MulticastSocket multiSocket;
     private DatagramPacket msgPacket;
@@ -51,7 +51,7 @@ public class MDRestoreListener implements Runnable {
 			    	String chunkNumber=message.split(" ")[4];
 			    	String body=message.split(Message.CRLF+Message.CRLF)[1];
 			    	
-			    	System.out.println(Integer.parseInt(senderId)+" "+server.PORT);
+			    	//System.out.println(Integer.parseInt(senderId)+" "+server.PORT);
 			    	
 			    	if (Integer.parseInt(senderId) != server.PORT)
 			    		break;

@@ -11,7 +11,7 @@ public class MDBackup implements Runnable {
 	
 	private static String INET_ADDRESS;// = "224.0.0.4";
     private static int PORT;// = 8887;
-    byte[] buf = new byte[256];//(1000 * 64)+256];
+    byte[] buf = new byte[(1000 * 64)+256];
     
     private DatagramSocket socket;
     private DatagramPacket msgPacket;

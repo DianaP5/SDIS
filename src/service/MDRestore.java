@@ -13,14 +13,13 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.util.Random;
 
-import listeners.MessageControlListener;
 import logic.Message;
 
 public class MDRestore implements Runnable {
 	
 	private static String INET_ADDRESS;// = "224.0.0.4";
     private static int PORT;// = 8887;
-    byte[] buf = new byte[256];//(1000 * 64)+256];
+    byte[] buf = new byte[(1000 * 64)+256];
     //private static String MC_IP;
     //private static int MC_PORT;
     
@@ -108,7 +107,7 @@ public class MDRestore implements Runnable {
 		                      new FileInputStream(System.getProperty("user.dir")
 		                    			+ "\\Resources\\Backup\\" + fileId+" "+ chunkNo + ".bak"), "UTF-8"))) {
  			int tmp;
- 			char[] buffer=new char[256]; //1000*64;
+ 			char[] buffer=new char[1000*64];
  			
  			while ((tmp = bis.read(buffer)) > 0 ) {
  				s1 = new String(buffer, 0, buffer.length);

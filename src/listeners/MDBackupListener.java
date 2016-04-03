@@ -16,7 +16,7 @@ public class MDBackupListener implements Runnable {
 	
 	private static String INET_ADDRESS; //= "224.0.0.4";
     private static int PORT; // = 8887;
-    byte[] buf = new byte[256];//(1000 * 64)+256];
+    byte[] buf = new byte[(1000 * 64)+256];
    
     private static String MC_IP;
     private static int MC_PORT;
@@ -70,8 +70,6 @@ public class MDBackupListener implements Runnable {
 			        File newFile = new File(f1,fileId+" "+chunkNumber+".bak");
 			        
 			        System.out.println("Listener MDB UDP: "+ chunkNumber);
-			        
-			        
 			        
 			    	if (server.db.getH1().get(fileId) == null){
 			    		server.db.insertValue(fileId,Integer.parseInt(degree));
