@@ -29,14 +29,14 @@ public class MessageHandler {
 	private String fileId;
 	private String chunkNo;
 	
-	private static String MC_IP="224.0.0.3";
-	private static Integer MC_PORT=8888;
+	private static String MC_IP;//="224.0.0.3";
+	private static Integer MC_PORT;//=8888;
 	
-	private static String MDB_IP="224.0.0.4";
-	private static Integer MDB_PORT=8887;
+	private static String MDB_IP;//="224.0.0.4";
+	private static Integer MDB_PORT;//=8887;
 					
-	private static String MDR_IP="224.0.0.5";
-	private static Integer MDR_PORT=8886;
+	private static String MDR_IP;//="224.0.0.5";
+	private static Integer MDR_PORT;//=8886;
 	
 	public String header;
 	public ServerTCP server;
@@ -64,7 +64,7 @@ public class MessageHandler {
 			this.filePath = message.split(" ")[2];
 			this.degree = message.split(" ")[3];
 			
-			putChunkHandler(this.MDB_IP,this.MDB_PORT);
+			putChunkHandler();
 			break;
 		case "RESTORE":
 			
@@ -139,7 +139,7 @@ public class MessageHandler {
 		//new Thread(mc1).start();
 	}
 
-	private void putChunkHandler(String ip,int p) throws IOException, InterruptedException,
+	private void putChunkHandler() throws IOException, InterruptedException,
 			NoSuchAlgorithmException {
 		FileSys f1 = createFile(peerId, filePath, degree);
 		splitFile(f1);
@@ -158,7 +158,7 @@ public class MessageHandler {
 			this.header=header;
 			Message m1 = new Message(header, c1.getContent());
 
-			MDBackup b1 = new MDBackup(m1, Integer.parseInt(degree),ip,p,server);
+			MDBackup b1 = new MDBackup(m1, Integer.parseInt(degree),this.MDB_IP,this.MDB_PORT,server);
 			 System.out.println("Nova thread chunk " + c1.getNumber());// +
 			// " "
 			// + c1.getContent().toString());

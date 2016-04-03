@@ -36,6 +36,7 @@ public class MessageControlListener implements Runnable {
 	    	
 	    	ipAddress = InetAddress.getByName(INET_ADDRESS);
 	    	multiSocket = new MulticastSocket(PORT);
+	    	System.out.println("CREATED CRESTDE");
 	    }
 	
 	    @Override
@@ -46,8 +47,11 @@ public class MessageControlListener implements Runnable {
 		        setMsgPacket(new DatagramPacket(buf, buf.length));
 		        
 	    		while(true){
+	    			System.out.println("READY");
+	    			
 			        multiSocket.receive(msgPacket);
-			        
+			        System.out.println("AFTER AFETER");
+	    			
 			        //this.setReceived(true);
 			        
 			        String message = new String(buf, 0, msgPacket.getLength());

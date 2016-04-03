@@ -27,6 +27,7 @@ public class MDBackup implements Runnable {
 	private int attempts=5;
 	private int repDeg;
 	public ServerTCP server;
+	private int duration;
 	
 	public MDBackup(Message msg, int op2,String ip,int p,ServerTCP server) throws IOException{
     	ipAddress = InetAddress.getByName(INET_ADDRESS);		
@@ -36,10 +37,14 @@ public class MDBackup implements Runnable {
     	this.INET_ADDRESS=ip;
     	this.PORT=p;
     	this.server=server;
+    	this.duration=1000;
 	}
 
 	private boolean checkResponse(String name,String chunkNo) {
-
+		
+		System.out.println(server.db.getH1().get(name+" "+chunkNo));
+		System.out.println(server.db.getH1().get(name));
+		
 		if (server.db.getH1().get(name+" "+chunkNo) != null)
 			if ((Integer) server.db.getH1().get(name+" "+chunkNo) == server.db.getH1().get(name))
 				return true;
@@ -53,12 +58,15 @@ public class MDBackup implements Runnable {
 			setMsgPacket(new DatagramPacket(message,message.length, ipAddress, PORT));
 	    	
 	  		try {
+	  			
 		    	while (!done) {
 		    		socket.send(getMsgPacket());
 					
 		    		int a=5-attempts;
 					System.out.println("Server sent MDB UDP: "+a+" "+ msg.getHeader()+" "+msg.getBody());
-					Thread.sleep(1000);
+					Thread.sleep(duration);
+					
+					duration=2*duration;
 					
 					String name=msg.getHeader().split(" ")[3];
 					String chunkNo=msg.getHeader().split(" ")[4];

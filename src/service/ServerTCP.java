@@ -21,8 +21,8 @@ public class ServerTCP implements Runnable {
 	private static Socket clientSocket;
 	private static String header;
 	
-	private static String MC_IP="224.0.0.3";
-	private static Integer MC_PORT=8888;
+	private static String MC_IP="224.0.0.6";
+	private static Integer MC_PORT=8884;
 	
 	private static String MDB_IP="224.0.0.4";
 	private static Integer MDB_PORT=8887;

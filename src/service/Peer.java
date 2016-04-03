@@ -5,7 +5,7 @@ import java.sql.SQLException;
 
 public class Peer {
 	
-	private final static Integer id=4447;
+	private final static Integer id=4448;
 			
 	private final static String MC_IP="224.0.0.3";
 	private final static Integer MC_PORT=8888;
@@ -23,7 +23,7 @@ public class Peer {
 		ServerTCP s1=new ServerTCP(header);
 		//serverID "224.0.0.3" 8888 "224.0.0.4" 8887 "224.0.0.5" 8886 
 		//MC, MDB, MDR,
-
+		
 		new Thread(s1).start();
 	}
 }
