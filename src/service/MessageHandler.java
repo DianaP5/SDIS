@@ -27,7 +27,7 @@ public class MessageHandler {
 	private String filePath;
 	private String degree;
 	private String version= "1.0";
-	private String fileId;
+	//private String fileId;
 	private String chunkNo;
 	
 	private static String MC_IP;//="224.0.0.3";
@@ -76,7 +76,7 @@ public class MessageHandler {
 			getChunkHandler();
 			break;
 		case "DELETE":
-			this.fileId = message.split(" ")[2];
+			this.filePath = message.split(" ")[2];
 			deleteChunkHandler();
 			break;
 		case "RECLAIM":
@@ -90,11 +90,8 @@ public class MessageHandler {
 
 	private void deleteChunkHandler() throws IOException, InterruptedException {
 		
-		int nChunks=getNumberParts(fileId) - 1;
-		
-		while(nChunks >= 0){
 			String header = "DELETE" + " " + version + " " + peerId + " "
-					+ fileId + " ";
+					+ filePath + " ";
 			
 			Message m1 = new Message(header,null);
 			
@@ -102,10 +99,6 @@ public class MessageHandler {
 			System.out.println("NOVA THREAD MC DELETE");
 			
 			new Thread(mc1).start();
-			Thread.sleep(1000);
-			
-			nChunks--;
-		}
 	}
 
 	private void getChunkHandler() throws IOException, InterruptedException {
@@ -122,8 +115,6 @@ public class MessageHandler {
 		
 		//new Thread(r1).start();
 		String fileID=null;
-		
-		System.out.println(server.files.size());
 		
 		for(int i=0; i < server.files.size();i++){
 			System.out.println(server.files.get(i).split(" ")[0]+"  "+server.files.get(i).split(" ")[1]);

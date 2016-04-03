@@ -25,6 +25,7 @@ public class MDRestoreListener implements Runnable {
 	public MDRestoreListener(String ip,int p,ServerTCP server) throws IOException{
     	this.INET_ADDRESS=ip;
     	this.PORT=p;
+    	this.server=server;
     	
 		ipAddress = InetAddress.getByName(INET_ADDRESS);
     	multiSocket = new MulticastSocket(PORT);
@@ -58,7 +59,9 @@ public class MDRestoreListener implements Runnable {
 			    	//String b=new String(body.getBytes(),0,body.length());
 			    	//String header=msgType+" "+version+" "+senderId+" "+fileId+" "+chunkNumber+" "+body+" ";
 			    	
-			    	if (Integer.parseInt(senderId) == server.PORT)
+			    	System.out.println(Integer.parseInt(senderId)+" "+server.PORT);
+			    	
+			    	if (Integer.parseInt(senderId) != server.PORT)
 			    		break;
 			    	
 			        File f1=new File(System.getProperty("user.dir")+"\\Resources\\Restored");

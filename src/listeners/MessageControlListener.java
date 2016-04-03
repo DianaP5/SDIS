@@ -72,13 +72,14 @@ public class MessageControlListener implements Runnable {
 			String msgType = message.split(" ")[0];
 			String version = message.split(" ")[1];
 			String senderId = message.split(" ")[2];
-			String fileId = message.split(" ")[3] ;
+			String fileId=null;
 			String chunkNo=null;
 			String name=null;
 			
 			switch (msgType) {
 				case "GETCHUNK":
 					chunkNo = message.split(" ")[4];
+					fileId= message.split(" ")[3] ;
 					
 					Message m1=new Message(message, null);
 					
@@ -89,6 +90,7 @@ public class MessageControlListener implements Runnable {
 					break;
 				case "STORED":
 					chunkNo = message.split(" ")[4];
+					fileId= message.split(" ")[3] ;
 					
 					//String msg=server.handler.header;
 					
@@ -112,17 +114,26 @@ public class MessageControlListener implements Runnable {
 				case "DELETE":
 					//String msg=server.handler.header;
 					
-					int nChunks=getNumberParts(fileId) - 1;
+					String fileID=null;
+					String filePath= message.split(" ")[3] ;
 					
-					System.out.println("TAMANHO "+nChunks);
+					for(int i=0; i < server.files.size();i++){
+						System.out.println(server.files.get(i).split(" ")[0]+"  "+server.files.get(i).split(" ")[1]);
+						System.out.println(filePath);
+						if (server.files.get(i).split(" ")[0].equals(filePath))
+							fileID=server.files.get(i).split(" ")[1];
+					}
+					
+					int nChunks=getNumberParts(fileID) - 1;
 					
 					while(nChunks >= 0){
 						File directory = new File(System.getProperty("user.dir")
-								+ "\\Resources\\Restored\\"+fileId+" "+nChunks+".bak");
+								+ "\\Resources\\Backup\\"+fileId+" "+nChunks+".bak");
 						
 						directory.delete();
 						nChunks--;
 					}
+					
 					break;
 				case "REMOVED":
 					name=fileId+" "+chunkNo;

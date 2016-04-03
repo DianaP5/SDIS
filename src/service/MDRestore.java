@@ -38,13 +38,15 @@ public class MDRestore implements Runnable {
 	private ServerTCP server;
  
 	public MDRestore(Message msg, String ip,int p,ServerTCP server) throws IOException{
-    	ipAddress = InetAddress.getByName(INET_ADDRESS);		
+
+    	this.INET_ADDRESS=ip;
+    	this.PORT=p;
+    	
+		ipAddress = InetAddress.getByName(INET_ADDRESS);		
     	socket = new DatagramSocket();
     	this.msg=msg;
     	this.server=server;
     	
-    	this.INET_ADDRESS=ip;
-    	this.PORT=p;
 	}
 
 	 @Override
