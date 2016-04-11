@@ -90,8 +90,7 @@ public class MDRestore implements Runnable {
 	private String getChunk(String fileId, int chunkNo) throws UnsupportedEncodingException, FileNotFoundException, IOException {
 		String s1 = null;
 		
-		File directory = new File(System.getProperty("user.dir")
-				+ "\\Resources\\Backup");
+		File directory = new File("/tmp/Backup");
 
 		String[] matchingFiles = directory.list(new FilenameFilter() {
 			public boolean accept(File dir, String name) {
@@ -104,8 +103,7 @@ public class MDRestore implements Runnable {
 		
 		try (BufferedReader bis = new BufferedReader(
 		           new InputStreamReader(
-		                      new FileInputStream(System.getProperty("user.dir")
-		                    			+ "\\Resources\\Backup\\" + fileId+" "+ chunkNo + ".bak"), "UTF-8"))) {
+		                      new FileInputStream("/tmp/Backup/" + fileId+" "+ chunkNo + ".bak"), "UTF-8"))) {
  			int tmp;
  			char[] buffer=new char[1000*64];
  			

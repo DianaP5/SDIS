@@ -26,17 +26,17 @@ public class Peer {
 				 id=Integer.parseInt(args[0]);
 				 
 				 MC_IP=args[1];
-				 MC_PORT=Integer.parseInt(args[0]);
+				 MC_PORT=Integer.parseInt(args[2]);
 				 
-				 MDB_IP=args[1];
-				 MDB_PORT=Integer.parseInt(args[0]);
+				 MDB_IP=args[3];
+				 MDB_PORT=Integer.parseInt(args[4]);
 				 
-				 MDR_IP=args[1];
-				 MDR_PORT=Integer.parseInt(args[0]);
+				 MDR_IP=args[5];
+				 MDR_PORT=Integer.parseInt(args[6]);
 			 }
-			 
+			
 			String header=id+" "+MC_IP+":"+MC_PORT+" "+MDB_IP+":"+MDB_PORT+" "+MDR_IP+":"+MDR_PORT;
-		
+			 System.out.println(header);
 		ServerTCP s1=new ServerTCP(header);
 		
 			new Thread(s1).start();

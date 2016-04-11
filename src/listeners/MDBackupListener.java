@@ -65,7 +65,7 @@ public class MDBackupListener implements Runnable {
 			    	if (Integer.parseInt(senderId) == server.PORT)
 			    		break;
 			    	
-			    	File f1=new File(System.getProperty("user.dir")+"\\Resources\\Backup");
+			    	File f1=new File("/tmp/Backup");
 			        		
 			        File newFile = new File(f1,fileId+" "+chunkNumber+".bak");
 			        
@@ -98,7 +98,7 @@ public class MDBackupListener implements Runnable {
 	    	String chunkNo=splitedMsg[4];
 	    	
 	    	//STORED <Version> <SenderId> <FileId> <ChunkNo> <CRLF><CRLF>
-	    	String header="STORED"+" "+version+" "+senderId+" "+fileId+" "+chunkNo+" ";
+	    	String header="STORED"+" "+version+" "+server.PORT+" "+fileId+" "+chunkNo+" ";
 	    	Message m1=new Message(header,null);
 	    	
 	    	Random r1=new Random();

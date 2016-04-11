@@ -56,7 +56,7 @@ public class MDRestoreListener implements Runnable {
 			    	if (Integer.parseInt(senderId) != server.PORT)
 			    		break;
 			    	
-			        File f1=new File(System.getProperty("user.dir")+"\\Resources\\Restored");
+			        File f1=new File("/tmp/Restored");
 			        		
 			        File newFile = new File(f1,fileId+" "+chunkNumber+".bak");
 			        

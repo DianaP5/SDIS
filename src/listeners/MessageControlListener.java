@@ -133,13 +133,12 @@ public class MessageControlListener implements Runnable {
 					System.out.println(nChunks);
 					
 					while(nChunks >= 0){
-						File directory = new File(System.getProperty("user.dir")
-								+ "\\Resources\\Backup\\"+fileID+" "+nChunks+".bak");
+						File directory = new File("/tmp/Backup/"+fileID+" "+nChunks+".bak");
 						
 						directory.delete();
 
 						//REMOVED <Version> <SenderId> <FileId> <ChunkNo> <CRLF><CRLF>
-						String header="REMOVED"+" "+version+" "+senderId+" "+fileID+" "+nChunks+" ";
+						String header="REMOVED"+" "+version+" "+server.PORT+" "+fileID+" "+nChunks+" ";
 						Message m2=new Message(header,null);
 						
 						MessageControl mc2=new MessageControl(m2,INET_ADDRESS,PORT);
@@ -191,8 +190,7 @@ public class MessageControlListener implements Runnable {
 		private String getChunk(String fileId, int chunkNo) throws UnsupportedEncodingException, FileNotFoundException, IOException {
 			String s1 = null;
 			
-			File directory = new File(System.getProperty("user.dir")
-					+ "\\Resources\\Backup");
+			File directory = new File("/tmp/Backup");
 
 			String[] matchingFiles = directory.list(new FilenameFilter() {
 				public boolean accept(File dir, String name) {
@@ -205,8 +203,7 @@ public class MessageControlListener implements Runnable {
 			
 			try (BufferedReader bis = new BufferedReader(
 			           new InputStreamReader(
-			                      new FileInputStream(System.getProperty("user.dir")
-			                    			+ "\\Resources\\Backup\\" + fileId+" "+ chunkNo + ".bak"), "UTF-8"))) {
+			                      new FileInputStream("/tmp/Backup/" + fileId+" "+ chunkNo + ".bak"), "UTF-8"))) {
 	 			int tmp;
 	 			char[] buffer=new char[1000*64];
 	 			
@@ -218,8 +215,7 @@ public class MessageControlListener implements Runnable {
 		}
 			
 		private static int getNumberParts(String fileId) throws IOException {
-			File directory = new File(System.getProperty("user.dir")
-					+ "\\Resources\\Backup");
+			File directory = new File("/tmp/Backup");
 
 			String[] matchingFiles = directory.list(new FilenameFilter() {
 				public boolean accept(File dir, String name) {
