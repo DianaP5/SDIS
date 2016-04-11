@@ -134,7 +134,7 @@ public class MessageControlListener implements Runnable {
 					
 					while(nChunks >= 0){
 						
-						File dir = new File("/Resources/Backup");
+						File dir = new File("./Resources/Backup");
 				    	dir.mkdirs();
 				    	
 				        File directory = new File(dir,fileID+" "+nChunks+".bak");
@@ -194,7 +194,7 @@ public class MessageControlListener implements Runnable {
 		private String getChunk(String fileId, int chunkNo) throws UnsupportedEncodingException, FileNotFoundException, IOException {
 			String s1 = null;
 			
-			File directory = new File("/Resources/Backup");
+			File directory = new File("./Resources/Backup");
 
 			String[] matchingFiles = directory.list(new FilenameFilter() {
 				public boolean accept(File dir, String name) {
@@ -219,7 +219,7 @@ public class MessageControlListener implements Runnable {
 		}
 			
 		private static int getNumberParts(String fileId) throws IOException {
-			File directory = new File("/Resources/Backup");
+			File directory = new File("./Resources/Backup");
 
 			String[] matchingFiles = directory.list(new FilenameFilter() {
 				public boolean accept(File dir, String name) {

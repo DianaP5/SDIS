@@ -65,7 +65,7 @@ public class MDBackupListener implements Runnable {
 			    	if (Integer.parseInt(senderId) == server.PORT)
 			    		break;
 			    	
-			    	File dir = new File("/Resources/Backup");
+			    	File dir = new File("./Resources/Backup");
 			    	dir.mkdirs();
 			    	
 			        File newFile = new File(dir,fileId+" "+chunkNumber+".bak");

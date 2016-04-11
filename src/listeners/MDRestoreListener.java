@@ -57,7 +57,7 @@ public class MDRestoreListener implements Runnable {
 			    		break;
 			    	
 
-			    	File dir = new File("/Resources/Restored");
+			    	File dir = new File("./Resources/Restored");
 			    	dir.mkdirs();
 			    	
 			        File newFile = new File(dir,fileId+" "+chunkNumber+".bak");
