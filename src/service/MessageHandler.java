@@ -93,7 +93,7 @@ public class MessageHandler {
 			return;
 		}
 		
-		File directory = new File("/tmp/Backup");
+		File directory = new File("/Resources/Backup");
 		
 		File[] listOfFiles = directory.listFiles();
 
@@ -220,7 +220,7 @@ public class MessageHandler {
 	
 	@SuppressWarnings("unused")
 	private static int getNumberParts(String fileId) throws IOException {
-		File directory = new File("/tmp/Backup");
+		File directory = new File("/Resources/Backup");
 
 		String[] matchingFiles = directory.list(new FilenameFilter() {
 			public boolean accept(File dir, String name) {
