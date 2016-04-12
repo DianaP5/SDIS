@@ -6,6 +6,7 @@ import java.io.FileInputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.RandomAccessFile;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -93,7 +94,7 @@ public class MessageHandler {
 			return;
 		}
 		
-		File directory = new File("/tmp/Backup");
+		File directory = new File("./Resources/Backup");
 		
 		File[] listOfFiles = directory.listFiles();
 
@@ -220,7 +221,7 @@ public class MessageHandler {
 	
 	@SuppressWarnings("unused")
 	private static int getNumberParts(String fileId) throws IOException {
-		File directory = new File("/tmp/Backup");
+		File directory = new File("./Resources/Backup");
 
 		String[] matchingFiles = directory.list(new FilenameFilter() {
 			public boolean accept(File dir, String name) {
@@ -253,48 +254,46 @@ public class MessageHandler {
 	}
 	
 	public void splitFile(FileSys file) throws IOException {
-		int counter = 0;
-		int eachFileSize = 1000 * 64; // 64Kb
-		        
-		try (BufferedReader bis = new BufferedReader(
-		           new InputStreamReader(
-		                      new FileInputStream(filePath), "UTF-8"))) {
+        int counter = 0;
+        double eachFileSize = 1000 * 64; // 64Kb
+                
+            int tmp;
+            File f1 = new File(filePath);
+            long actualFileSize = f1.length();
+            
+            double nChunks = 0;
+            boolean multiple=false;
+            
+            if (actualFileSize % eachFileSize == 0)
+                multiple=true;
+                    
+            if (actualFileSize < eachFileSize)
+                eachFileSize = (int) actualFileSize;
+            else {
+                double times = actualFileSize / eachFileSize;
+                nChunks = (int) Math.ceil(times);
+                System.out.println("CHUNKS: "+times+" "+nChunks);
+            }
 
-			int tmp;
-			File f1 = new File(filePath);
-			long actualFileSize = f1.length();
-			
-			int nChunks = 0;
-			boolean multiple=false;
-			
-			if (actualFileSize % eachFileSize == 0)
-				multiple=true;
-					
-			if (actualFileSize < eachFileSize)
-				eachFileSize = (int) actualFileSize;
-			else {
-				double times = actualFileSize % eachFileSize;
-				nChunks = (int) Math.floor(times);
-			}
+            byte[] buffer=new byte[(int) eachFileSize];
+            
+            RandomAccessFile f = new RandomAccessFile(f1, "r");
+            
+        while ((tmp = f.read(buffer)) > 0 ) {
+                String s1 = new String(buffer, 0, buffer.length);
 
-			char[] buffer=new char[eachFileSize];
-			
-		while ((tmp = bis.read(buffer)) > 0 ) {
-				String s1 = new String(buffer, 0, buffer.length);
+                if (nChunks > 0 && (counter + 1 >= nChunks)) {
+                    int lastChunkSize = (int) (actualFileSize - ((nChunks - 1) * eachFileSize));
 
-				if (nChunks > 0 && (counter + 1 >= nChunks)) {
-					int lastChunkSize = (int) (actualFileSize - ((nChunks - 1) * eachFileSize));
-					s1 = new String(buffer, 0, lastChunkSize);
-				}
-
-				Chunks c1 = new Chunks(file.getId(), counter, s1);
-				file.addChunk(c1);
-				counter++;
-			}
-		if (multiple){
-			Chunks c1 = new Chunks(file.getId(), counter," ");
-			file.addChunk(c1);
-		}
-		}
-	}
-}
+                    s1 = new String(buffer, 0, lastChunkSize);
+                }
+                Chunks c1 = new Chunks(file.getId(), counter,s1);
+                file.addChunk(c1);
+                counter++;
+            }
+        if (multiple){
+            Chunks c1 = new Chunks(file.getId(), counter,"");
+            file.addChunk(c1);
+        }
+        }
+    }

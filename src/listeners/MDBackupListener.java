@@ -65,9 +65,10 @@ public class MDBackupListener implements Runnable {
 			    	if (Integer.parseInt(senderId) == server.PORT)
 			    		break;
 			    	
-			    	File f1=new File("/tmp/Backup");
-			        		
-			        File newFile = new File(f1,fileId+" "+chunkNumber+".bak");
+			    	File dir = new File("./Resources/Backup");
+			    	dir.mkdirs();
+			    	
+			        File newFile = new File(dir,fileId+" "+chunkNumber+".bak");
 			        
 			        System.out.println("Listener MDB UDP: "+ chunkNumber);
 			        

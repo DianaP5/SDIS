@@ -133,7 +133,11 @@ public class MessageControlListener implements Runnable {
 					System.out.println(nChunks);
 					
 					while(nChunks >= 0){
-						File directory = new File("/tmp/Backup/"+fileID+" "+nChunks+".bak");
+						
+						File dir = new File("./Resources/Backup");
+				    	dir.mkdirs();
+				    	
+				        File directory = new File(dir,fileID+" "+nChunks+".bak");
 						
 						directory.delete();
 
@@ -190,7 +194,7 @@ public class MessageControlListener implements Runnable {
 		private String getChunk(String fileId, int chunkNo) throws UnsupportedEncodingException, FileNotFoundException, IOException {
 			String s1 = null;
 			
-			File directory = new File("/tmp/Backup");
+			File directory = new File("./Resources/Backup");
 
 			String[] matchingFiles = directory.list(new FilenameFilter() {
 				public boolean accept(File dir, String name) {
@@ -203,7 +207,7 @@ public class MessageControlListener implements Runnable {
 			
 			try (BufferedReader bis = new BufferedReader(
 			           new InputStreamReader(
-			                      new FileInputStream("/tmp/Backup/" + fileId+" "+ chunkNo + ".bak"), "UTF-8"))) {
+			                      new FileInputStream("/Resources/Backup/" + fileId+" "+ chunkNo + ".bak"), "UTF-8"))) {
 	 			int tmp;
 	 			char[] buffer=new char[1000*64];
 	 			
@@ -215,7 +219,7 @@ public class MessageControlListener implements Runnable {
 		}
 			
 		private static int getNumberParts(String fileId) throws IOException {
-			File directory = new File("/tmp/Backup");
+			File directory = new File("./Resources/Backup");
 
 			String[] matchingFiles = directory.list(new FilenameFilter() {
 				public boolean accept(File dir, String name) {

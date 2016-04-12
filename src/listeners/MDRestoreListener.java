@@ -56,9 +56,11 @@ public class MDRestoreListener implements Runnable {
 			    	if (Integer.parseInt(senderId) != server.PORT)
 			    		break;
 			    	
-			        File f1=new File("/tmp/Restored");
-			        		
-			        File newFile = new File(f1,fileId+" "+chunkNumber+".bak");
+
+			    	File dir = new File("./Resources/Restored");
+			    	dir.mkdirs();
+			    	
+			        File newFile = new File(dir,fileId+" "+chunkNumber+".bak");
 			        
 			        System.out.println("Listener MDR UDP: "+ chunkNumber);
 			        
