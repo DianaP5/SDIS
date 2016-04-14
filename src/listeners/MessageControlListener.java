@@ -98,8 +98,6 @@ public class MessageControlListener implements Runnable {
 					
 					Message m1=new Message(message, null);
 					
-					
-					
 					MDRestore r1=new MDRestore(m1,MDR_IP, MDR_PORT,server);
 					
 					new Thread(r1).start();
@@ -133,6 +131,10 @@ public class MessageControlListener implements Runnable {
 					
 					break;
 				case "DELETE":
+					
+					if (Integer.parseInt(senderId) == server.PORT)
+						break;
+					
 					String fileID= message.split(" ")[3] ;
 					 
 					int nChunks=getNumberParts(fileID) - 1;

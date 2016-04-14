@@ -95,6 +95,9 @@ public class MessageHandler {
 		}
 		
 		File directory = new File("./Resources/Backup");
+
+		if (!directory.exists())
+			return;
 		
 		File[] listOfFiles = directory.listFiles();
 

@@ -53,8 +53,8 @@ public class MDRestoreListener implements Runnable {
 			    	
 			    	//System.out.println(Integer.parseInt(senderId)+" "+server.PORT);
 			    	
-			    	if (Integer.parseInt(senderId) != server.PORT)
-			    		break;
+			    	if (Integer.parseInt(senderId) == server.PORT)
+			    		continue;
 			    	
 
 			    	File dir = new File("./Resources/Restored");
