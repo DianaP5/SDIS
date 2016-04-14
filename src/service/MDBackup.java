@@ -48,7 +48,9 @@ public class MDBackup implements Runnable {
 
 	 @Override
 		public void run() {
-	    	byte[] message=msg.getMessage().getBytes();
+	    	byte[] message=msg.getMessage();
+	    	System.out.print("TAMANHO: "+message.length);
+	    	
 			setMsgPacket(new DatagramPacket(message,message.length, ipAddress, PORT));
 	    	
 	  		try {
@@ -57,7 +59,7 @@ public class MDBackup implements Runnable {
 		    		socket.send(getMsgPacket());
 					
 		    		int a=5-attempts;
-					System.out.println("Server sent MDB UDP: "+a+" "+ msg.getHeader()+" "+msg.getBody());
+					System.out.println("Server sent MDB UDP: "+a+" "+ msg.getHeader());//+" "+msg.getBody());
 					Thread.sleep(duration);
 					
 					duration=2*duration;

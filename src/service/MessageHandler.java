@@ -156,13 +156,23 @@ public class MessageHandler {
 	private void getChunkHandler() throws IOException, InterruptedException {
 		//GETCHUNK <Version> <SenderId> <FileId> <ChunkNo> <CRLF><CRLF>
 		
-		File f1 = new File(filePath);
-		long actualFileSize = f1.length();
-
-		double times = actualFileSize % (1000 * 64);
-		int nChunks = (int) Math.floor(times);
-		nChunks--;
+		 double eachFileSize = 1000 * 64; // 64Kb
+         
+         File f1 = new File(filePath);
+         long actualFileSize = f1.length();
+         
+         double nChunks = 1;
+         
+         if (actualFileSize < eachFileSize)
+             eachFileSize = (int) actualFileSize;
+         else {
+             double times = actualFileSize / eachFileSize;
+             nChunks = (int) Math.ceil(times);
+             System.out.println("CHUNKS: "+times+" "+nChunks);
+         }
 		
+        nChunks--;
+        
 		String fileID=null;
 		
 		for(int i=0; i < server.files.size();i++){
@@ -172,7 +182,7 @@ public class MessageHandler {
 		
 		while(nChunks >= 0){
 			String header = "GETCHUNK" + " " + version + " " + peerId + " "
-					+ fileID + " " + nChunks + " ";
+					+ fileID + " " + (int) nChunks + " ";
 			
 			Message m1 = new Message(header,null);
 			
@@ -261,7 +271,7 @@ public class MessageHandler {
             File f1 = new File(filePath);
             long actualFileSize = f1.length();
             
-            double nChunks = 0;
+            double nChunks = 1;
             boolean multiple=false;
             
             if (actualFileSize % eachFileSize == 0)
@@ -281,18 +291,21 @@ public class MessageHandler {
             
         while ((tmp = f.read(buffer)) > 0 ) {
                 String s1 = new String(buffer, 0, buffer.length);
-
+                
+                System.out.println(buffer.length+" "+s1.length()+" BYTES: "+s1.getBytes().length);
                 if (nChunks > 0 && (counter + 1 >= nChunks)) {
                     int lastChunkSize = (int) (actualFileSize - ((nChunks - 1) * eachFileSize));
 
                     s1 = new String(buffer, 0, lastChunkSize);
+                    System.out.println(s1.length()+" 2GGGBYTES: "+s1.getBytes().length);
                 }
-                Chunks c1 = new Chunks(file.getId(), counter,s1);
+                Chunks c1 = new Chunks(file.getId(), counter,buffer);
                 file.addChunk(c1);
                 counter++;
             }
         if (multiple){
-            Chunks c1 = new Chunks(file.getId(), counter,"");
+        	byte[] b1=new byte[0];
+            Chunks c1 = new Chunks(file.getId(), counter,b1);
             file.addChunk(c1);
         }
         }

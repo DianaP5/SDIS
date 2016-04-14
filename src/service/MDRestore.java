@@ -7,6 +7,7 @@ import java.io.FileNotFoundException;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.RandomAccessFile;
 import java.io.UnsupportedEncodingException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -26,6 +27,7 @@ public class MDRestore implements Runnable {
     private DatagramSocket socket;
     private DatagramPacket msgPacket;
     private InetAddress ipAddress;
+    private ServerTCP server;
     
     private Message msg;
     
@@ -36,6 +38,7 @@ public class MDRestore implements Runnable {
 
     	this.INET_ADDRESS=ip;
     	this.PORT=p;
+    	this.server=server;
     	
 		ipAddress = InetAddress.getByName(INET_ADDRESS);		
     	socket = new DatagramSocket();
@@ -52,20 +55,22 @@ public class MDRestore implements Runnable {
 		    		//GETCHUNK <Version> <SenderId> <FileId> <ChunkNo> <CRLF><CRLF>
 		    		//CHUNK <Version> <SenderId> <FileId> <ChunkNo> <CRLF><CRLF><Body>
 		    		
+	  				
+	  			
 					String version = message.split(" ")[1];
 					String senderId = message.split(" ")[2];
 					String fileId = message.split(" ")[3] ;
 					int chunkNo = Integer.parseInt(message.split(" ")[4]);
 		    		
-		    		String chunk=getChunk(fileId,chunkNo);
+		    		byte[] chunk=getChunk(fileId,chunkNo);
 		    		
 		    		if (chunk != null){
 		    		
-		    		System.out.println("TAMANHO     :"+chunk.length());
-		    		String header="CHUNK"+" "+version+" "+senderId+" "+fileId+" "+chunkNo+" ";
+		    		//System.out.println("TAMANHO     :"+chunk.length());
+		    		String header="CHUNK"+" "+version+" "+server.PORT+" "+fileId+" "+chunkNo+" ";
 		    		Message m1=new Message(header,chunk);
 		    		
-		    		byte[] msg=m1.getMessage().getBytes();
+		    		byte[] msg=m1.getMessage();//.getBytes();
 		    		
 		    		msgPacket = new DatagramPacket(msg,msg.length, ipAddress, PORT);
 		    		
@@ -87,8 +92,8 @@ public class MDRestore implements Runnable {
 			}
 		}
 
-	private String getChunk(String fileId, int chunkNo) throws UnsupportedEncodingException, FileNotFoundException, IOException {
-		String s1 = null;
+	private byte[] getChunk(String fileId, int chunkNo) throws UnsupportedEncodingException, FileNotFoundException, IOException {
+		byte[] s1 = null;
 		
 		File directory = new File("./Resources/Backup");
 
@@ -101,16 +106,17 @@ public class MDRestore implements Runnable {
 		if (matchingFiles.length == 0)
 			return null;
 		
-		try (BufferedReader bis = new BufferedReader(
-		           new InputStreamReader(
-		                      new FileInputStream("./Resources/Backup/" + fileId+" "+ chunkNo + ".bak"), "UTF-8"))) {
- 			int tmp;
- 			char[] buffer=new char[1000*64];
+		File f1 = new File("./Resources/Backup/" + fileId+" "+ chunkNo + ".bak");
+		
+		byte[] buffer=new byte[1000*64];
+        
+        RandomAccessFile f = new RandomAccessFile(f1, "r");
+        
+				int tmp;
  			
- 			while ((tmp = bis.read(buffer)) > 0 ) {
- 				s1 = new String(buffer, 0, buffer.length);
+ 			  while ((tmp = f.read(buffer)) > 0 ) {
+ 				s1 = buffer;
  		}
 		return s1;
 	}   
-}
 }

@@ -4,9 +4,9 @@ public class Chunks {
 	@SuppressWarnings("unused")
 	private String fileId;
 	private int number;
-	private String content;
+	private byte[] content;
 
-    public Chunks(String fileId,int number,String s1) {
+    public Chunks(String fileId,int number,byte[] s1) {
         this.fileId = fileId;
         this.setNumber(number);
         this.setContent(s1);
@@ -20,11 +20,11 @@ public class Chunks {
 		this.number = number;
 	}
 
-	public String getContent() {
+	public byte[] getContent() {
 		return content;
 	}
 
-	public void setContent(String s1) {
+	public void setContent(byte[] s1) {
 		this.content = s1;
 	}
 }

@@ -63,7 +63,7 @@ public class MDBackupListener implements Runnable {
 			    	
 			    	System.out.println(senderId+" "+server.PORT);
 			    	if (Integer.parseInt(senderId) == server.PORT)
-			    		break;
+			    		continue;
 			    	
 			    	File dir = new File("./Resources/Backup");
 			    	dir.mkdirs();
@@ -77,7 +77,10 @@ public class MDBackupListener implements Runnable {
 			    		server.db.insertValue(fileId+" "+chunkNumber,1);
 			    	}else if (server.db.getH1().get(fileId+" "+chunkNumber) == null){
 			    		server.db.insertValue(fileId+" "+chunkNumber,1);
-			    	}else continue;
+			    	}else{
+			    		sendRespond(message);
+			    		continue;
+			    	}
 			        
 			        try (FileOutputStream out = new FileOutputStream(newFile)) {
 			        	out.write(body.getBytes(), 0, body.length());//tmp is chunk size

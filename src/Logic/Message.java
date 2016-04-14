@@ -11,15 +11,21 @@ public class Message {
 	private DatagramPacket packet;
 	
 	public String header;
-	private String body;
+	private byte[] body;
 	
-	public Message(String header,String body) {
+	public Message(String header,byte[] body) {
 		setHeader(header+CRLF+CRLF);
 		setBody(body);
 	}
 	
-	public String getMessage(){
-		return header+body;
+	public byte[] getMessage(){
+		byte[] destination = new byte[header.getBytes().length+body.length];
+
+		System.arraycopy(header.getBytes(), 0, destination, 0, header.getBytes().length);
+
+		System.arraycopy(body, 0, destination, header.length(), body.length);
+		
+		return destination;
 	}
 	
 	public void setHeader(String header) {
@@ -30,11 +36,11 @@ public class Message {
 		return header;
 	}
 
-	public String getBody() {
+	public byte[] getBody() {
 		return body;
 	}
 
-	public void setBody(String body) {
+	public void setBody(byte[] body) {
 		this.body = body;
 	}
 	

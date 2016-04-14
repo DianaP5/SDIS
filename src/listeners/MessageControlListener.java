@@ -7,6 +7,7 @@ import java.io.FileNotFoundException;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.RandomAccessFile;
 import java.io.UnsupportedEncodingException;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
@@ -88,10 +89,16 @@ public class MessageControlListener implements Runnable {
 			
 			switch (msgType) {
 				case "GETCHUNK":
+					
+					if (Integer.parseInt(senderId) == server.PORT)
+	  					break;
+					
 					chunkNo = message.split(" ")[4];
 					fileId= message.split(" ")[3] ;
 					
 					Message m1=new Message(message, null);
+					
+					
 					
 					MDRestore r1=new MDRestore(m1,MDR_IP, MDR_PORT,server);
 					
@@ -100,7 +107,7 @@ public class MessageControlListener implements Runnable {
 					break;
 				case "STORED":
 					
-					if (Integer.parseInt(senderId) != server.PORT)
+					if (Integer.parseInt(senderId) == server.PORT)
 						break;
 					
 					chunkNo = message.split(" ")[4];
@@ -170,7 +177,7 @@ public class MessageControlListener implements Runnable {
 						String header = "PUTCHUNK" + " " + version + " " + server.PORT + " "
 								+ fileId + " " + chunkNo + " " + degree + " ";
 
-			    		String chunk=getChunk(fileId,Integer.parseInt(chunkNo));
+			    		byte[] chunk=getChunk(fileId,Integer.parseInt(chunkNo));
 			    		
 						Message m2 = new Message(header,chunk);
 						
@@ -191,8 +198,8 @@ public class MessageControlListener implements Runnable {
 			
 		}
 		
-		private String getChunk(String fileId, int chunkNo) throws UnsupportedEncodingException, FileNotFoundException, IOException {
-			String s1 = null;
+		private byte[] getChunk(String fileId, int chunkNo) throws UnsupportedEncodingException, FileNotFoundException, IOException {
+			byte[] s1 = null;
 			
 			File directory = new File("./Resources/Backup");
 
@@ -205,18 +212,19 @@ public class MessageControlListener implements Runnable {
 			if (matchingFiles.length == 0)
 				return null;
 			
-			try (BufferedReader bis = new BufferedReader(
-			           new InputStreamReader(
-			                      new FileInputStream("/Resources/Backup/" + fileId+" "+ chunkNo + ".bak"), "UTF-8"))) {
-	 			int tmp;
-	 			char[] buffer=new char[1000*64];
+			File f1 = new File("./Resources/Backup/" + fileId+" "+ chunkNo + ".bak");
+			
+			byte[] buffer=new byte[1000*64];
+	        
+	        RandomAccessFile f = new RandomAccessFile(f1, "r");
+	        
+					int tmp;
 	 			
-	 			while ((tmp = bis.read(buffer)) > 0 ) {
-	 				s1 = new String(buffer, 0, buffer.length);
+	 			  while ((tmp = f.read(buffer)) > 0 ) {
+	 				s1 = buffer;
 	 		}
 			return s1;
-		}
-		}
+		} 
 			
 		private static int getNumberParts(String fileId) throws IOException {
 			File directory = new File("./Resources/Backup");
